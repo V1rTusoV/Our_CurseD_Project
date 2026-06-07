@@ -1,42 +1,55 @@
 ﻿#include "game.h"
-#include <cstdlib>   // для rand(), srand()
-#include <ctime>     // для time()
-#include <algorithm> // для std::find, std::min
+#include <cstdlib>   
+#include <ctime>     
+#include <algorithm> 
 #include <set>
 
 namespace game {
 
-    // ----------------------------------------------------------------------
-    // Реализация методов GameObject (объявленных в game.h)
-    // ----------------------------------------------------------------------
-
     void GameObject::play() {
-        // Заглушка / временная реализация
+        initgame();
         bool flag = true;
         while (flag) {
-            // TODO: игровой цикл
+            MapSegment();
+            flag = false;
         }
     }
 
+    void GameObject::initgame() {
+        //srand(time(NULL));
+        srand(1337);
+        seed = (int) rand % 100000;
+        currentFloor = 2;
+    }
+
     void GameObject::MapSegment() {
-        // Заглушка
+        Graph g;
+        switch (currentFloor)
+        {
+        case 1:
+            g = generateRoguelikeGraph(seed, FIRST_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS, FIRST_FLOOR_BATTLES, FIRST_FLOOR_SHOPS, FIRST_FLOOR_SPECIALS, MAX_OUTGOING, MAX_EXTRA);
+            break;
+        case 2:
+            g = generateRoguelikeGraph(seed, SECOND_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS, SECOND_FLOOR_BATTLES, SECOND_FLOOR_SHOPS, SECOND_FLOOR_SPECIALS, MAX_OUTGOING, MAX_EXTRA);
+            break;
+        default:
+            break;
+        }
+        g.print();
     }
 
     void GameObject::BattleSegment() {
-        // Заглушка
+        
     }
 
     void GameObject::GenerateGraph() {
-        // Заглушка
+        
     }
 
     void GameObject::InitializeEnemys() {
-        // Заглушка
+        
     }
 
-    // ----------------------------------------------------------------------
-    // Генерация одного слоя (узлов)
-    // ----------------------------------------------------------------------
     std::vector<int> GameObject::generateLayer(Graph& graph, int numNodes,
         double weightBattle, double weightShop, double weightSpecial,
         int minBattleVal, int maxBattleVal,
@@ -67,18 +80,12 @@ namespace game {
         return layer;
     }
 
-    // ----------------------------------------------------------------------
-    // Проверка возможности соединения (запрет SHOP->SHOP и SPECIAL->SPECIAL)
-    // ----------------------------------------------------------------------
     bool GameObject::canConnect(const GameObject::Node& from, const GameObject::Node& to) {
         if (from.type == SHOP && to.type == SHOP) return false;
         if (from.type == SPECIAL && to.type == SPECIAL) return false;
         return true;
     }
 
-    // ----------------------------------------------------------------------
-    // Соединение двух слоёв
-    // ----------------------------------------------------------------------
     void GameObject::connectLayers(Graph& graph,
         const std::vector<int>& prevLayer,
         const std::vector<int>& nextLayer,
@@ -88,7 +95,6 @@ namespace game {
         if (prevLayer.empty() || nextLayer.empty()) return;
         std::vector<int> predCount(nextLayer.size(), 0);
 
-        // Обязательные рёбра от каждого узла prevLayer
         for (int from : prevLayer) {
             const Node& fromNode = graph.nodes[from];
             std::vector<int> candidates;
@@ -102,7 +108,6 @@ namespace game {
             if (it != nextLayer.end()) predCount[it - nextLayer.begin()]++;
         }
 
-        // Гарантия предшественника для каждого узла nextLayer
         for (size_t i = 0; i < nextLayer.size(); ++i) {
             if (predCount[i] == 0) {
                 int to = nextLayer[i];
@@ -118,7 +123,6 @@ namespace game {
             }
         }
 
-        // Дополнительные случайные рёбра
         for (int from : prevLayer) {
             int currentOut = (int)graph.nodes[from].next.size();
             int freeSlots = maxOutgoingPerNode - currentOut;
@@ -139,19 +143,16 @@ namespace game {
         }
     }
 
-    // ----------------------------------------------------------------------
-    // Основная функция генерации графа
-    // ----------------------------------------------------------------------
+
     GameObject::Graph GameObject::generateRoguelikeGraph(
+        int seed,
         int NodePathLen,
         int minNodesPerLayer, int maxNodesPerLayer,
         double weightBattle, double weightShop, double weightSpecial,
-        int maxOutgoingPerNode,
-        int maxExtraEdges,
+        int maxOutgoingPerNode, int maxExtraEdges,
         int minBattleVal, int maxBattleVal,
         int minShopVal, int maxShopVal,
-        int minSpecialVal, int maxSpecialVal,
-        int seed)
+        int minSpecialVal, int maxSpecialVal)
     {
         if (seed >= 0) srand(seed);
         else srand((unsigned)time(NULL));
@@ -177,7 +178,6 @@ namespace game {
         for (size_t i = 0; i < layers.size() - 1; ++i)
             connectLayers(graph, layers[i], layers[i + 1], maxOutgoingPerNode, maxExtraEdges);
 
-        // Старт соединяется со всеми узлами первого слоя
         if (layers.size() >= 2 && !layers[1].empty()) {
             int start = 0;
             graph.nodes[start].next.clear();
@@ -185,7 +185,6 @@ namespace game {
                 graph.addEdge(start, to);
         }
 
-        // Исправление изолированных узлов (без входящих рёбер)
         std::vector<std::set<int>> incoming(graph.nodes.size());
         for (const auto& node : graph.nodes)
             for (int to : node.next)
@@ -207,22 +206,20 @@ namespace game {
         return graph;
     }
 
-    // ----------------------------------------------------------------------
-    // Демонстрация генерации графа по умолчанию
-    // ----------------------------------------------------------------------
+
     void GameObject::generateNshowdefaultgraph() {
         double battleWeight = 1.7;
         double shopWeight = 1.0;
         double specialWeight = 1.0;
 
         Graph g = generateRoguelikeGraph(
-            5,          // NodePathLen
-            2, 4,       // minNodesPerLayer, maxNodesPerLayer
+            1335,
+            5,          
+            2, 4,       
             battleWeight, shopWeight, specialWeight,
-            3, 2        // maxOutgoing, maxExtra
-            // seed не указан → используется time(NULL)
+            3, 2        
         );
         g.print();
     }
 
-} // namespace game
+}

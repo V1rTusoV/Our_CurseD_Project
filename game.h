@@ -1,6 +1,5 @@
 ﻿#pragma once
 
-// game.h
 #ifndef GAME_H
 #define GAME_H
 
@@ -15,8 +14,35 @@
 #include <ctime>
 #include <cstdlib>
 
-#define MAX_ENEMY_IN_BATTLE 3
+//STATIC GAME DEFINE BLOCK
+
 #define MAX_FLOOR 2
+
+//BATTLE DEFINE BLOCK
+
+#define MAX_ENEMY_IN_BATTLE 3
+
+//GRAPH DEFINE BLOCK
+
+#define MIN_NODES_LAYERS 2
+#define MAX_NODES_LAYERS 3
+#define MAX_OUTGOING 3
+#define MAX_EXTRA 2
+
+#define FIRST_FLOOR_LAYERS 8
+
+#define FIRST_FLOOR_BATTLES 1.7
+#define FIRST_FLOOR_SHOPS 1
+#define FIRST_FLOOR_SPECIALS 1
+
+#define SECOND_FLOOR_LAYERS 12
+
+#define SECOND_FLOOR_BATTLES 2.2
+#define SECOND_FLOOR_SHOPS 1.2
+#define SECOND_FLOOR_SPECIALS 1.2
+
+
+
 
 namespace game {
 
@@ -84,14 +110,15 @@ namespace game {
         Player player;
         int currentFloor;
 
-        // Private methods declarations
+        void initgame();
         void play();
         void MapSegment();
         void BattleSegment();
         void GenerateGraph();
         void InitializeEnemys();
 
-        // Graph generation helpers
+        // Graph generation structures
+
         int randomInt(int min, int max) {
             return min + rand() % (max - min + 1);
         }
@@ -100,7 +127,6 @@ namespace game {
             return min + (rand() / (double)RAND_MAX) * (max - min);
         }
 
-        // Graph generation structures
         struct Node {
             int id;
             RoomType type;
@@ -143,7 +169,6 @@ namespace game {
             }
         };
 
-        // Graph generation functions (implementations in .cpp)
         std::vector<int> generateLayer(Graph& graph, int numNodes,
             double weightBattle, double weightShop, double weightSpecial,
             int minBattleVal, int maxBattleVal,
@@ -159,21 +184,21 @@ namespace game {
             int maxExtraEdges);
 
         Graph generateRoguelikeGraph(
-            int NodePathLen,
-            int minNodesPerLayer, int maxNodesPerLayer,
-            double weightBattle, double weightShop, double weightSpecial,
+            int seed = -1,
+            int NodePathLen = 5,
+            int minNodesPerLayer = 2, int maxNodesPerLayer = 4,
+            double weightBattle = 1, double weightShop = 1, double weightSpecial = 1,
             int maxOutgoingPerNode = 3,
             int maxExtraEdges = 2,
             int minBattleVal = -15, int maxBattleVal = -5,
             int minShopVal = 10, int maxShopVal = 20,
-            int minSpecialVal = 5, int maxSpecialVal = 15,
-            int seed = -1
+            int minSpecialVal = 5, int maxSpecialVal = 15
         );
-    public:
+    
         void generateNshowdefaultgraph();
 
     };
 
-} // namespace game
+}
 
-#endif // GAME_H
+#endif

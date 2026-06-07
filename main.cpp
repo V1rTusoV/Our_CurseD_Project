@@ -10,7 +10,7 @@
 int main() {
     
     game::GameObject game;
-    game.generateNshowdefaultgraph();
+    game.play();
 
     return 0;
 }
