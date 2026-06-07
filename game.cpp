@@ -23,6 +23,15 @@ namespace game {
     }
 
     void GameObject::MapSegment() {
+        Graph map;
+        map = GenerateGraph();
+    }
+
+    void GameObject::BattleSegment() {
+        
+    }
+
+    GameObject::Graph GameObject::GenerateGraph() {
         Graph g;
         switch (currentFloor)
         {
@@ -36,14 +45,7 @@ namespace game {
             break;
         }
         g.print();
-    }
-
-    void GameObject::BattleSegment() {
-        
-    }
-
-    void GameObject::GenerateGraph() {
-        
+        return g;
     }
 
     void GameObject::InitializeEnemys() {

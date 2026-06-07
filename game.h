@@ -114,7 +114,7 @@ namespace game {
         void play();
         void MapSegment();
         void BattleSegment();
-        void GenerateGraph();
+        
         void InitializeEnemys();
 
         // Graph generation structures
@@ -168,6 +168,8 @@ namespace game {
                 std::cout << "======================\n";
             }
         };
+
+        Graph GenerateGraph();
 
         std::vector<int> generateLayer(Graph& graph, int numNodes,
             double weightBattle, double weightShop, double weightSpecial,
