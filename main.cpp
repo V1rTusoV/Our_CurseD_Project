@@ -9,14 +9,11 @@
 #include <cstdlib> 
 #include <windows.h>
 
-
-
-
-int main() {
+/*int main() {
     system("chcp 1251");
 
     game::GameObject game;
     game.play();
 
     return 0;
-}
+}*/
