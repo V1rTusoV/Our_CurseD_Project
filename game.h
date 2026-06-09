@@ -65,18 +65,35 @@ namespace game {
     };
 
     class Base {
+    public:
         int id;
         std::string codifier;
     };
 
     class CardItem : public Base {
+    public:
         std::string name;
         std::string description;
         int level;
         int cost;
+        DamageType dtype;
+        int damage;
+
+        CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0, int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0)
+        {
+			id = Id;
+			codifier = Codifier;
+			name = Name;
+			description = Description;
+			level = Level;
+			cost = Cost;
+			dtype = Dtype;
+			damage = Damage;
+        }
     };
 
     class Enemy : public Base {
+    public:
         std::string name;
         std::string description;
         int level;
@@ -85,6 +102,25 @@ namespace game {
         int moves;
         std::vector<int> enableCards;
         std::vector<int> hand;
+        int mechresist;
+		int physresist;
+        int splashresist;
+
+    public:
+        Enemy(int Id = 0, std::string Codifietr = "", std::string Name = "",
+            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0) {
+			id = Id;
+			codifier = Codifietr;
+			name = Name;
+			description = Description;
+			level = Level;
+			initiative = Initiative;
+			hp = Hp;
+			moves = Moves;
+			mechresist = Mechresist;
+			physresist = Physresist;
+			splashresist = Splashresist;
+        }
     };
 
     class Player {
@@ -94,28 +130,19 @@ namespace game {
         int moves;
         std::vector<int> enableCards;
         std::vector<int> hand;
+        int mechresist;
+        int physresist;
+        int splashresist;
+
+    public:
+		Player() : level(1), initiative(10), hp(100), moves(2) {
+            
+        }
+
     };
 
     class GameObject {
     public:
-        // Settings
-        float totalvolume;
-        float musicvolume;
-        float effectvolume;
-        float soundvolume;
-
-        // CurrentGame
-        int seed;
-        time_t runstart;
-        Player player;
-        int currentFloor;
-
-        void initgame();
-        void play();
-        void MapSegment();
-        void BattleSegment();
-        
-        void InitializeEnemys();
 
         // Graph generation structures
 
@@ -198,6 +225,31 @@ namespace game {
         );
     
         void generateNshowdefaultgraph();
+
+
+        // Settings
+        float totalvolume;
+        float musicvolume;
+        float effectvolume;
+        float soundvolume;
+
+        // CurrentGame
+        int seed;
+        time_t runstart;
+        Player player;
+        int currentFloor;
+        int currentNodeId;
+        Graph map;
+		std::vector <Enemy> enemys;
+		std::vector <CardItem> cards;
+
+        void initapp();
+        void initgame();
+        void play();
+        int MapSegment();
+        int BattleSegment();
+
+        void InitializeEnemys();
 
     };
 
