@@ -1,0 +1,292 @@
+[
+    {
+        "codifier": "ENM",
+        "description": "Занимает низшую иерархию в криминальном мире города К. Интересно, ты будешь таким же?",
+        "enableCards": [
+            1,
+            2
+        ],
+        "hand": [],
+        "hp": 5,
+        "id": 1,
+        "initiative": 2,
+        "level": 1,
+        "mechresist": 0,
+        "moves": 1,
+        "name": "Кот-Чести",
+        "physresist": 1,
+        "splashresist": 0
+    },
+    {
+        "codifier": "ENM",
+        "description": "<Вы привыкли стрелять и нет места, куда податься? Рады приветствовать вас в семье!> из рекламной кампании семьи К.",
+        "enableCards": [
+            2,
+            3,
+            4,
+            5,
+            8
+        ],
+        "hand": [],
+        "hp": 5,
+        "id": 2,
+        "initiative": 1,
+        "level": 1,
+        "mechresist": 2,
+        "moves": 1,
+        "name": "Кот-Солдат",
+        "physresist": 2,
+        "splashresist": 3
+    },
+    {
+        "codifier": "ENM",
+        "description": "Улицы переполнены сбродом и это - их главный представитель.",
+        "enableCards": [
+            1,
+            2,
+            3,
+            4,
+            17
+        ],
+        "hand": [],
+        "hp": 7,
+        "id": 3,
+        "initiative": 1,
+        "level": 2,
+        "mechresist": 2,
+        "moves": 1,
+        "name": "Кот-бандит",
+        "physresist": 3,
+        "splashresist": 2
+    },
+    {
+        "codifier": "ENM",
+        "description": "Наемный убийца, который может нанести вам серьезный урон, если вы не будете осторожны.",
+        "enableCards": [
+            7,
+            8
+        ],
+        "hand": [],
+        "hp": 10,
+        "id": 4,
+        "initiative": 3,
+        "level": 2,
+        "mechresist": 3,
+        "moves": 3,
+        "name": "Кот-убийца",
+        "physresist": 4,
+        "splashresist": 2
+    },
+    {
+        "codifier": "ENM",
+        "description": "Представитель власти семьи на улицах города К.",
+        "enableCards": [
+            2,
+            3,
+            5,
+            6,
+            9,
+            15,
+            18
+        ],
+        "hand": [],
+        "hp": 20,
+        "id": 5,
+        "initiative": 10,
+        "level": 3,
+        "mechresist": 5,
+        "moves": 4,
+        "name": "Хозяин улиц",
+        "physresist": 7,
+        "splashresist": 4
+    },
+    {
+        "codifier": "ENM",
+        "description": "На удивление они занимаются тем, что громят.",
+        "enableCards": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            8
+        ],
+        "hand": [],
+        "hp": 8,
+        "id": 6,
+        "initiative": 5,
+        "level": 2,
+        "mechresist": 3,
+        "moves": 3,
+        "name": "Кот-Громила",
+        "physresist": 3,
+        "splashresist": 4
+    },
+    {
+        "codifier": "ENM",
+        "description": "Отчаянные ребята. Ни одной пули не устрашатся",
+        "enableCards": [
+            3,
+            5,
+            9,
+            15
+        ],
+        "hand": [],
+        "hp": 10,
+        "id": 7,
+        "initiative": 6,
+        "level": 3,
+        "mechresist": 5,
+        "moves": 2,
+        "name": "Кот-стрелок",
+        "physresist": 3,
+        "splashresist": 5
+    },
+    {
+        "codifier": "ENM",
+        "description": "БУМ!",
+        "enableCards": [
+            1,
+            2,
+            3,
+            4,
+            7,
+            16
+        ],
+        "hand": [],
+        "hp": 10,
+        "id": 8,
+        "initiative": 6,
+        "level": 3,
+        "mechresist": 2,
+        "moves": 2,
+        "name": "Кот-подрывник",
+        "physresist": 2,
+        "splashresist": 7
+    },
+    {
+        "codifier": "ENM",
+        "description": "Правая ежовая руковица главы семьи.",
+        "enableCards": [
+            3,
+            5,
+            6,
+            7,
+            8,
+            9,
+            12,
+            14,
+            15,
+            18
+        ],
+        "hand": [],
+        "hp": 25,
+        "id": 9,
+        "initiative": 10,
+        "level": 4,
+        "mechresist": 6,
+        "moves": 5,
+        "name": "Кот-дон",
+        "physresist": 6,
+        "splashresist": 4
+    },
+    {
+        "codifier": "ENM",
+        "description": "Пожалуйте все ваши фишки на стол, господа!",
+        "enableCards": [
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            14,
+            15,
+            19,
+            20,
+            21
+        ],
+        "hand": [],
+        "hp": 35,
+        "id": 10,
+        "initiative": 15,
+        "level": 5,
+        "mechresist": 10,
+        "moves": 6,
+        "name": "Великий и ужасный глава семьи - Мехин",
+        "physresist": 10,
+        "splashresist": 10
+    },
+    {
+        "codifier": "NPC",
+        "description": "Непревзойденный крупье! Ослепительный ведущий! И никакого мухлежа",
+        "enableCards": [
+            10
+        ],
+        "hand": [],
+        "hp": 9999,
+        "id": 11,
+        "initiative": 9999,
+        "level": 100,
+        "mechresist": 9999,
+        "moves": 9999,
+        "name": "КоТ-Ерев - он же ваш крупье на все игры",
+        "physresist": 9999,
+        "splashresist": 9999
+    },
+    {
+        "codifier": "NPC",
+        "description": "Продает самый лучший товар на рынке. Бери скорее, не пожалеешь!",
+        "enableCards": [
+            8,
+            9
+        ],
+        "hand": [],
+        "hp": 1000,
+        "id": 12,
+        "initiative": 100,
+        "level": 100,
+        "mechresist": 9999,
+        "moves": 100,
+        "name": "Пабло Котобар",
+        "physresist": 9999,
+        "splashresist": 9999
+    },
+    {
+        "codifier": "NPC",
+        "description": "Семье нужны пушки - Виктор дает пушки. К дальнейшему сотрудничеству мы не готовы.",
+        "enableCards": [
+            1
+        ],
+        "hand": [],
+        "hp": 1000,
+        "id": 13,
+        "initiative": 100,
+        "level": 100,
+        "mechresist": 9999,
+        "moves": 100,
+        "name": "Виктор Кот",
+        "physresist": 9999,
+        "splashresist": 9999
+    },
+    {
+        "codifier": "ENM",
+        "description": "Высокопоставленный член семьи К., который может вызвать подкрепление в виде других котов.",
+        "enableCards": [
+            27,
+            28
+        ],
+        "hand": [],
+        "hp": 25,
+        "id": 14,
+        "initiative": 4,
+        "level": 5,
+        "mechresist": 5,
+        "moves": 3,
+        "name": "Кот-генерал",
+        "physresist": 6,
+        "splashresist": 4
+    }
+]
