@@ -32,6 +32,8 @@ namespace file {
             {"hp", e.hp},
             {"maxhp", e.maxhp},          // добавлено
             {"moves", e.moves},
+            {"gainexp", e.gainexp},          // добавлено
+            {"gainemoney", e.gainmoney},
             {"maxmoves", e.maxmoves},    // добавлено
             {"enableCards", e.enableCards},
             {"hand", e.hand},
@@ -51,6 +53,8 @@ namespace file {
         if (j.contains("maxhp")) j.at("maxhp").get_to(e.maxhp);        // добавлено
         j.at("moves").get_to(e.moves);
         if (j.contains("maxmoves")) j.at("maxmoves").get_to(e.maxmoves); // добавлено
+        if (j.contains("gainexp")) j.at("gainexp").get_to(e.gainexp); // добавлено
+        if (j.contains("gainmoney")) j.at("gainmoney").get_to(e.gainmoney); // добавлено
         j.at("enableCards").get_to(e.enableCards);
         j.at("hand").get_to(e.hand);
         j.at("mechresist").get_to(e.mechresist);
@@ -98,7 +102,8 @@ namespace file {
             {"level", c.level},
             {"cost", c.cost},
             {"dtype", damageTypeToString(c.dtype)},
-            {"damage", c.damage}
+            {"damage", c.damage},
+            {"moneycost", c.moneycost}
         };
     }
 
@@ -113,6 +118,7 @@ namespace file {
         j.at("dtype").get_to(dtypeStr);
         c.dtype = stringToDamageType(dtypeStr);
         j.at("damage").get_to(c.damage);
+        if (j.contains("moneycost")) j.at("moneycost").get_to(c.moneycost);
     }
 
     void FileManager::to_json(json& j, const std::vector<game::CardItem>& vec) {

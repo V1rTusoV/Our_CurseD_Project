@@ -86,8 +86,10 @@ namespace game {
         int cost;
         DamageType dtype;
         int damage;
+        int moneycost;
 
-        CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0, int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0)
+        CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0, 
+            int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0, int Moneycost = 10)
         {
 			id = Id;
 			codifier = Codifier;
@@ -97,6 +99,7 @@ namespace game {
 			cost = Cost;
 			dtype = Dtype;
 			damage = Damage;
+            moneycost = Moneycost;
         }
     };
 
@@ -115,10 +118,13 @@ namespace game {
         int mechresist;
 		int physresist;
         int splashresist;
+        int gainexp;
+        int gainmoney;
 
     public:
         Enemy(int Id = 0, std::string Codifietr = "", std::string Name = "",
-            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0, int Maxhp = 10, int Maxmoves = 4) {
+            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0, 
+            int Maxhp = 10, int Maxmoves = 4, int Gainexp = 10, int Gainmoney = 10) {
 			id = Id;
 			codifier = Codifietr;
 			name = Name;
@@ -132,6 +138,8 @@ namespace game {
 			splashresist = Splashresist;
             maxhp = Maxhp;
             maxmoves = Maxmoves;
+            gainexp = Gainexp;
+            gainmoney = Gainmoney;
         }
     };
 
@@ -139,20 +147,54 @@ namespace game {
         int level;
         int initiative;
         int hp;
-        int maxHp;               // добавлено
+        int maxHp;
         int maxmoves;
         int moves;
         int money;
+        int exp;
         std::vector<int> enableCards;
         std::vector<int> hand;
         int mechresist;
         int physresist;
         int splashresist;
     public:
-        Player() : level(1), initiative(5), hp(10), maxHp(10), maxmoves(2), money(0),
+        Player() : level(1), initiative(5), hp(15), maxHp(15), maxmoves(3), money(0),
             mechresist(2), physresist(1), splashresist(2) {
-            enableCards = { 1,2,3,4,5,1,2,1,2,3};
+            enableCards = { 1,2,3,4,8,1,2,3,4,17 };
             hand = {};
+        }
+
+        void CheckLevel() {
+            bool leveled = false;
+            do {
+                leveled = false;
+                switch (level) {
+                case 1: if (exp >= 50) { level++; exp -= 50; leveled = true; } break;
+                case 2: if (exp >= 70) { level++; exp -= 70; leveled = true; } break;
+                case 3: if (exp >= 100) { level++; exp -= 100; leveled = true; } break;
+                case 4: if (exp >= 140) { level++; exp -= 140; leveled = true; } break;
+                case 5: break;
+                default: break;
+                }
+                if (leveled) {
+                    maxHp += 5;
+                    hp = maxHp;
+                    if (level % 2 == 0) maxmoves++;
+                }
+            } while (leveled);
+        }
+
+        void addExp(int amount) { exp += amount; CheckLevel(); }
+
+        int getExp() const { return exp; }
+        int getExpForNextLevel() const {
+            switch (level) {
+            case 1: return 50;
+            case 2: return 70;
+            case 3: return 100;
+            case 4: return 140;
+            default: return 0;
+            }
         }
 
         // Геттеры и сеттеры
@@ -162,7 +204,7 @@ namespace game {
         int getMaxHp() const { return maxHp; }
         void setHp(int newHp) { hp = newHp; if (hp > maxHp) hp = maxHp; if (hp < 0) hp = 0; }
         int getMoves() const { return moves; }
-		int getMaxMoves() const { return maxmoves; }
+        int getMaxMoves() const { return maxmoves; }
         int getMoney() const { return money; }
         void addMoney(int amount) { money += amount; }
         std::vector<int>& getEnableCards() { return enableCards; }
@@ -285,6 +327,7 @@ namespace game {
         void printInspectMenu(const std::vector<game::Enemy>& battleEnemies);
         void waitForEnter();
         void printInspectCards(const std::vector<int>& playerHand, const std::vector<game::CardItem>& cards);
+        void ShowPlayerStats();
 
         void initapp();
         void initgame();
