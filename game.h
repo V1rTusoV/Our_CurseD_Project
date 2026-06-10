@@ -13,6 +13,7 @@
 #include <string>
 #include <ctime>
 #include <cstdlib>
+#include <iomanip>
 
 //STATIC GAME DEFINE BLOCK
 
@@ -23,6 +24,13 @@
 #define MAX_ENEMY_IN_BATTLE 3
 
 //GRAPH DEFINE BLOCK
+
+#define COLOR_RESET   "\033[0m"
+#define COLOR_RED     "\033[31m"
+#define COLOR_GREEN   "\033[32m"
+#define COLOR_YELLOW  "\033[33m"
+#define COLOR_BLUE    "\033[34m"
+#define COLOR_MAGENTA "\033[35m"
 
 #define MIN_NODES_LAYERS 2
 #define MAX_NODES_LAYERS 3
@@ -99,7 +107,9 @@ namespace game {
         int level;
         int initiative;
         int hp;
+        int maxhp;
         int moves;
+        int maxmoves;
         std::vector<int> enableCards;
         std::vector<int> hand;
         int mechresist;
@@ -108,7 +118,7 @@ namespace game {
 
     public:
         Enemy(int Id = 0, std::string Codifietr = "", std::string Name = "",
-            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0) {
+            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0, int Maxhp = 10, int Maxmoves = 4) {
 			id = Id;
 			codifier = Codifietr;
 			name = Name;
@@ -120,6 +130,8 @@ namespace game {
 			mechresist = Mechresist;
 			physresist = Physresist;
 			splashresist = Splashresist;
+            maxhp = Maxhp;
+            maxmoves = Maxmoves;
         }
     };
 
@@ -127,22 +139,44 @@ namespace game {
         int level;
         int initiative;
         int hp;
+        int maxHp;               // добавлено
+        int maxmoves;
         int moves;
+        int money;
         std::vector<int> enableCards;
         std::vector<int> hand;
         int mechresist;
         int physresist;
         int splashresist;
-
     public:
-		Player() : level(1), initiative(10), hp(100), moves(2) {
-            
+        Player() : level(1), initiative(5), hp(10), maxHp(10), maxmoves(2), money(0),
+            mechresist(2), physresist(1), splashresist(2) {
+            enableCards = { 1,2,3,4,5,1,2,1,2,3};
+            hand = {};
         }
 
+        // Геттеры и сеттеры
+        int getLevel() const { return level; }
+        int getInitiative() const { return initiative; }
+        int getHp() const { return hp; }
+        int getMaxHp() const { return maxHp; }
+        void setHp(int newHp) { hp = newHp; if (hp > maxHp) hp = maxHp; if (hp < 0) hp = 0; }
+        int getMoves() const { return moves; }
+		int getMaxMoves() const { return maxmoves; }
+        int getMoney() const { return money; }
+        void addMoney(int amount) { money += amount; }
+        std::vector<int>& getEnableCards() { return enableCards; }
+        const std::vector<int>& getEnableCards() const { return enableCards; }
+        std::vector<int>& getHand() { return hand; }
+        const std::vector<int>& getHand() const { return hand; }
+        int getMechresist() const { return mechresist; }
+        int getPhysresist() const { return physresist; }
+        int getSplashresist() const { return splashresist; }
     };
 
     class GameObject {
     public:
+
 
         // Graph generation structures
 
@@ -225,7 +259,7 @@ namespace game {
         );
     
         void generateNshowdefaultgraph();
-
+        void printGraphAscii(const GameObject::Graph& graph, int startId);
 
         // Settings
         float totalvolume;
@@ -243,13 +277,22 @@ namespace game {
 		std::vector <Enemy> enemys;
 		std::vector <CardItem> cards;
 
+        void printSeparator(char ch = '=', int width = 100);
+        void printMainHeader();
+        void printTopStats(const std::vector<game::Enemy>& battleEnemies, int playerHp, int playerMaxHp);
+        void printHandAndMoves(const std::vector<int>& playerHand, int playerMovesRemaining, const std::vector<game::CardItem>& cards);
+        void printConsequences(const std::string& message);
+        void printInspectMenu(const std::vector<game::Enemy>& battleEnemies);
+        void waitForEnter();
+        void printInspectCards(const std::vector<int>& playerHand, const std::vector<game::CardItem>& cards);
+
         void initapp();
         void initgame();
         void play();
         int MapSegment();
         int BattleSegment();
-
-        void InitializeEnemys();
+        int ShopSegment();
+        int SpecialSegment();
 
     };
 

@@ -44,7 +44,7 @@ void Motion(SDL_Rect &POS, SDL_Event event) {
     POS.y = event.motion.y - POS.h / 2;
 }
 
-int main(int argc, char* argv[])
+/*int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO);
     IMG_Init(IMG_INIT_PNG);
@@ -430,7 +430,7 @@ int main(int argc, char* argv[])
         SDL_DestroyRenderer(renderer);
         SDL_Quit();
         return 1;
-    }
+    }*/
 
 
 

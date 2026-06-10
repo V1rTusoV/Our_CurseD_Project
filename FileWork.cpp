@@ -30,12 +30,14 @@ namespace file {
             {"level", e.level},
             {"initiative", e.initiative},
             {"hp", e.hp},
+            {"maxhp", e.maxhp},          // добавлено
             {"moves", e.moves},
+            {"maxmoves", e.maxmoves},    // добавлено
             {"enableCards", e.enableCards},
             {"hand", e.hand},
-			{"mechresist", e.mechresist},
-			{"physresist", e.physresist},
-			{"splashresist", e.splashresist}
+            {"mechresist", e.mechresist},
+            {"physresist", e.physresist},
+            {"splashresist", e.splashresist}
         };
     }
     void FileManager::from_json(const json& j, game::Enemy& e) {
@@ -46,12 +48,14 @@ namespace file {
         j.at("level").get_to(e.level);
         j.at("initiative").get_to(e.initiative);
         j.at("hp").get_to(e.hp);
+        if (j.contains("maxhp")) j.at("maxhp").get_to(e.maxhp);        // добавлено
         j.at("moves").get_to(e.moves);
+        if (j.contains("maxmoves")) j.at("maxmoves").get_to(e.maxmoves); // добавлено
         j.at("enableCards").get_to(e.enableCards);
         j.at("hand").get_to(e.hand);
-		j.at("mechresist").get_to(e.mechresist);
-		j.at("physresist").get_to(e.physresist);
-		j.at("splashresist").get_to(e.splashresist);
+        j.at("mechresist").get_to(e.mechresist);
+        j.at("physresist").get_to(e.physresist);
+        j.at("splashresist").get_to(e.splashresist);
     }
     void FileManager::test() {
         game::Enemy enemy(101, "E01", "Goblin", "Small green creature", 2, 12, 45, 3);
