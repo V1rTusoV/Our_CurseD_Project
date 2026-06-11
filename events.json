@@ -1,0 +1,98 @@
+[
+    {
+        "id": 1,
+        "codifier": "EVT|3",
+        "description": "Проходя мимо вашего стола, член семьи К. уронил одну из своих карт.",
+        "type": "AddItem",
+        "value1": 3,
+        "value2": 0
+    },
+    {
+        "id": 2,
+        "codifier": "EVT",
+        "description": "Шулер под столом стащил вашу карту!",
+        "type": "RemoveItem",
+        "value1": 0,
+        "value2": 0
+    },
+    {
+        "id": 3,
+        "codifier": "EVT|1|2",
+        "description": "Вы нашли редкий артефакт, увеличивающий физическую защиту.",
+        "type": "AddResist",
+        "value1": 1,
+        "value2": 2
+    },
+    {
+        "id": 4,
+        "codifier": "EVT|0|-1",
+        "description": "Проклятие ослабляет вашу механическую стойкость.",
+        "type": "RemoveResist",
+        "value1": 0,
+        "value2": 1
+    },
+    {
+        "id": 5,
+        "codifier": "EVT|30",
+        "description": "Вы нашли мешочек с фишками под столом.",
+        "type": "AddMoney",
+        "value1": 30,
+        "value2": 0
+    },
+    {
+        "id": 6,
+        "codifier": "EVT|15",
+        "description": "Крупье забирает часть ваших фишек за неудачную ставку.",
+        "type": "RemoveMoney",
+        "value1": 15,
+        "value2": 0
+    },
+    {
+        "id": 7,
+        "codifier": "EVT|1",
+        "description": "Благословение кошачьего бога увеличивает ваши ходы.",
+        "type": "AddMoves",
+        "value1": 1,
+        "value2": 0
+    },
+    {
+        "id": 8,
+        "codifier": "EVT|1",
+        "description": "Травма уменьшает ваши возможные действия.",
+        "type": "RemoveMoves",
+        "value1": 1,
+        "value2": 0
+    },
+    {
+        "id": 9,
+        "codifier": "EVT|5",
+        "description": "Вы выпили эликсир, увеличивающий максимальное здоровье.",
+        "type": "AddMaxHp",
+        "value1": 5,
+        "value2": 0
+    },
+    {
+        "id": 10,
+        "codifier": "EVT|3",
+        "description": "Болезнь уменьшает ваш запас здоровья.",
+        "type": "RemoveMaxHp",
+        "value1": 3,
+        "value2": 0
+    },
+    {
+        "id": 11,
+        "codifier": "EVT|7",
+        "description": "Вы отдохнули и восстановили здоровье.",
+        "type": "AddHp",
+        "value1": 7,
+        "value2": 0
+    },
+    {
+        "id": 12,
+        "codifier": "EVT|5",
+        "description": "Вас ранили, теряете здоровье.",
+        "type": "RemoveHp",
+        "value1": 5,
+        "value2": 0
+    }
+]
