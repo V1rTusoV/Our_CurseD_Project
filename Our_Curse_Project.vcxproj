@@ -137,6 +137,7 @@
     <ClCompile Include="game.cpp" />
     <ClCompile Include="FileWork.cpp" />
     <ClCompile Include="SDL.cpp" />
+    <ClCompile Include="temp.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />

@@ -3,6 +3,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+//Include block
 #include <iostream>
 #include <vector>
 #include <random>
@@ -14,17 +15,16 @@
 #include <ctime>
 #include <cstdlib>
 #include <iomanip>
+#include <queue>
+#include <cstdlib>
 
 //STATIC GAME DEFINE BLOCK
-
 #define MAX_FLOOR 2
 
 //BATTLE DEFINE BLOCK
-
 #define MAX_ENEMY_IN_BATTLE 3
 
 //GRAPH DEFINE BLOCK
-
 #define COLOR_RESET   "\033[0m"
 #define COLOR_RED     "\033[31m"
 #define COLOR_GREEN   "\033[32m"
@@ -50,10 +50,10 @@
 #define SECOND_FLOOR_SPECIALS 1.2
 
 
-
-
+//game namespace
 namespace game {
 
+    //Enum block
     enum DamageType {
         physycs,
         heal,
@@ -63,7 +63,6 @@ namespace game {
         summon,
         specific
     };
-
     enum RoomType {
         START,
         BATTLE,
@@ -71,13 +70,60 @@ namespace game {
         SPECIAL,
         BOSS
     };
+    enum EventType {
+        //codifier ::    EVT|(Сила/Карта)
+        //Пример: (объект класса Event)
+        // id:1
+        // codifier:EVT|3
+        // description: Проходя мимо вашего стола, член семьи К. уронил одну из своих кард
+        // type: AddItem
+        // Данный евент будет давать игроку в enablecards карту с id = 3
 
+        AddItem,        //Добавить карту                                                    Кодификатор: EVT|(карта которую добавить)
+        RemoveItem,     //Удалить случайную карту с enablecards игрока                      Кодификатор: EVT
+        AddResist,      //Добавить к одному из трех сопротивлений значение                  Кодификатор: EVT|(к какому сопротивлению добавить)|(добавляемое значение)
+        RemoveResist,   //Убрать из одного из трех сопротивлений значение                   Кодификатор: EVT|(из какого сопротивления убрать)|(убираемое значение)
+        AddMoney,       //Добавить игроку фишки                                             Кодификатор: EVT|(сколько фишек добавить)
+        RemoveMoney,    //Забрать у игрока фишки                                            Кодификатор: EVT|(сколько фишек убрать)
+        AddMoves,       //Навсегда увеличить количество ходов у игрока                      Кодификатор: EVT|(сколько ходов добавить)
+        RemoveMoves,    //Навсегда уменьшить количество ходов у игрока                      Кодификатор: EVT|(сколько ходов убрать)
+        AddMaxHp,       //Увеличить максимальное здоровье игрока                            Кодификатор: EVT|(сколько добавить)
+        RemoveMaxHp,    //Уменьшить максимальное здоровье игрока                            Кодификатор: EVT|(сколько убрать)
+        AddHp,          //Полечить игрока на значение                                       Кодификатор: EVT|(сколько востановить)
+        RemoveHp        //Покалечить игрока(если хп опускается до 0 и ниже, оставить 1)     Кодификатор: EVT|(сколько убрать)
+    };
+
+    //Class block
     class Base {
     public:
         int id;
         std::string codifier;
     };
+    class Event : public Base {
+    public:
 
+        std::string description;
+        EventType type;
+
+        int value1;   // первый параметр (например, id карты, количество денег, величина изменения)
+        int value2;   // второй параметр (например, тип сопротивления: 0-мех,1-физ,2-сплеш)
+
+        Event(int Id = 0, std::string Codifier = "", std::string Description = "",
+            EventType Type = EventType::AddItem, int Val1 = 0, int Val2 = 0)
+            : description(Description), type(Type), value1(Val1), value2(Val2) {
+            id = Id;
+            codifier = Codifier;
+        }
+
+        void SetId(int Id)
+        {
+            id = Id;
+        }
+        void SetCodifier(std::string Codifier)
+        {
+            codifier = Codifier;
+        }
+    };
     class CardItem : public Base {
     public:
         std::string name;
@@ -88,21 +134,20 @@ namespace game {
         int damage;
         int moneycost;
 
-        CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0, 
+        CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0,
             int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0, int Moneycost = 10)
         {
-			id = Id;
-			codifier = Codifier;
-			name = Name;
-			description = Description;
-			level = Level;
-			cost = Cost;
-			dtype = Dtype;
-			damage = Damage;
+            id = Id;
+            codifier = Codifier;
+            name = Name;
+            description = Description;
+            level = Level;
+            cost = Cost;
+            dtype = Dtype;
+            damage = Damage;
             moneycost = Moneycost;
         }
     };
-
     class Enemy : public Base {
     public:
         std::string name;
@@ -116,33 +161,32 @@ namespace game {
         std::vector<int> enableCards;
         std::vector<int> hand;
         int mechresist;
-		int physresist;
+        int physresist;
         int splashresist;
         int gainexp;
         int gainmoney;
 
     public:
         Enemy(int Id = 0, std::string Codifietr = "", std::string Name = "",
-            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0, 
+            std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0,
             int Maxhp = 10, int Maxmoves = 4, int Gainexp = 10, int Gainmoney = 10) {
-			id = Id;
-			codifier = Codifietr;
-			name = Name;
-			description = Description;
-			level = Level;
-			initiative = Initiative;
-			hp = Hp;
-			moves = Moves;
-			mechresist = Mechresist;
-			physresist = Physresist;
-			splashresist = Splashresist;
+            id = Id;
+            codifier = Codifietr;
+            name = Name;
+            description = Description;
+            level = Level;
+            initiative = Initiative;
+            hp = Hp;
+            moves = Moves;
+            mechresist = Mechresist;
+            physresist = Physresist;
+            splashresist = Splashresist;
             maxhp = Maxhp;
             maxmoves = Maxmoves;
             gainexp = Gainexp;
             gainmoney = Gainmoney;
         }
     };
-
     class Player {
         int level;
         int initiative;
@@ -214,22 +258,30 @@ namespace game {
         int getMechresist() const { return mechresist; }
         int getPhysresist() const { return physresist; }
         int getSplashresist() const { return splashresist; }
+        void addMechresist(int amount) { mechresist += amount; if (mechresist < 0) mechresist = 0; }
+        void addPhysresist(int amount) { physresist += amount; if (physresist < 0) physresist = 0; }
+        void addSplashresist(int amount) { splashresist += amount; if (splashresist < 0) splashresist = 0; }
+        void addMaxMoves(int amount) { maxmoves += amount; if (maxmoves < 1) maxmoves = 1; }
+        void addMaxHp(int amount) {
+            maxHp += amount;
+            if (maxHp < 1) maxHp = 1;
+            if (hp > maxHp) hp = maxHp;
+        }
     };
 
+    //GameObject block
     class GameObject {
     public:
 
-
-        // Graph generation structures
-
+        //Random block
         int randomInt(int min, int max) {
             return min + rand() % (max - min + 1);
         }
-
         double randomDouble(double min, double max) {
             return min + (rand() / (double)RAND_MAX) * (max - min);
         }
 
+        //Graph
         struct Node {
             int id;
             RoomType type;
@@ -273,7 +325,19 @@ namespace game {
         };
 
         Graph GenerateGraph();
-
+        Graph generateRoguelikeGraph(
+            int seed = -1,
+            int NodePathLen = 5,
+            int minNodesPerLayer = 2, int maxNodesPerLayer = 4,
+            double weightBattle = 1, double weightShop = 1, double weightSpecial = 1,
+            int maxOutgoingPerNode = 3,
+            int maxExtraEdges = 2,
+            int minBattleVal = -15, int maxBattleVal = -5,
+            int minShopVal = 10, int maxShopVal = 20,
+            int minSpecialVal = 5, int maxSpecialVal = 15
+        );
+        void generateNshowdefaultgraph();
+        void printGraphAscii(const GameObject::Graph& graph, int startId);
         std::vector<int> generateLayer(Graph& graph, int numNodes,
             double weightBattle, double weightShop, double weightSpecial,
             int minBattleVal, int maxBattleVal,
@@ -288,37 +352,11 @@ namespace game {
             int maxOutgoingPerNode,
             int maxExtraEdges);
 
-        Graph generateRoguelikeGraph(
-            int seed = -1,
-            int NodePathLen = 5,
-            int minNodesPerLayer = 2, int maxNodesPerLayer = 4,
-            double weightBattle = 1, double weightShop = 1, double weightSpecial = 1,
-            int maxOutgoingPerNode = 3,
-            int maxExtraEdges = 2,
-            int minBattleVal = -15, int maxBattleVal = -5,
-            int minShopVal = 10, int maxShopVal = 20,
-            int minSpecialVal = 5, int maxSpecialVal = 15
-        );
-    
-        void generateNshowdefaultgraph();
-        void printGraphAscii(const GameObject::Graph& graph, int startId);
+        //Init Block
+        void initapp();
+        void initgame();
 
-        // Settings
-        float totalvolume;
-        float musicvolume;
-        float effectvolume;
-        float soundvolume;
-
-        // CurrentGame
-        int seed;
-        time_t runstart;
-        Player player;
-        int currentFloor;
-        int currentNodeId;
-        Graph map;
-		std::vector <Enemy> enemys;
-		std::vector <CardItem> cards;
-
+        //Show Block
         void printSeparator(char ch = '=', int width = 100);
         void printMainHeader();
         void printTopStats(const std::vector<game::Enemy>& battleEnemies, int playerHp, int playerMaxHp);
@@ -329,16 +367,36 @@ namespace game {
         void printInspectCards(const std::vector<int>& playerHand, const std::vector<game::CardItem>& cards);
         void ShowPlayerStats();
 
-        void initapp();
-        void initgame();
+        //Game Block
+
+        void applyEvent(const Event& e);
         void play();
         int MapSegment();
         int BattleSegment();
         int ShopSegment();
         int SpecialSegment();
 
+        //Settings
+        float totalvolume;
+        float musicvolume;
+        float effectvolume;
+        float soundvolume;
+
+        //Game vars
+        const int SEPARATOR_WIDTH = 80;
+        int seed;
+        time_t runstart;
+        Player player;
+        int currentFloor;
+        int currentNodeId;
+        Graph map;
+        std::vector <Enemy> enemys;
+        std::vector <CardItem> cards;
+        std::vector<Event> events;
+
     };
 
 }
 
-#endif
+
+#endif //GAME_H

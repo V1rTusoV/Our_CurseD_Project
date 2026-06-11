@@ -1,126 +1,53 @@
-﻿#include "game.h"
+﻿//Include block
+#include "game.h"
 #include "FileWork.h"
-#include <cstdlib>   
-#include <ctime>     
-#include <algorithm> 
-#include <set>
-#include <queue>
 
+//game namespace
 namespace game {
 
+    //init functions
+    void GameObject::initapp() {
+        totalvolume = 1.0f;
+        musicvolume = 1.0f;
+        effectvolume = 1.0f;
+        soundvolume = 1.0f;
+    }
+    void GameObject::initgame() {
+        srand(static_cast<unsigned>(time(nullptr)));
+        seed = rand();
+        currentFloor = 1;
+        runstart = time(nullptr);
+        currentNodeId = 0;
+        map = GenerateGraph();
+
+        file::FileManager fm;
+        enemys = fm.readEnemiesFromFile("enemies.json");
+        cards = fm.readCardsFromFile("cards.json");
+        events = fm.readEventsFromFile("events.json");
+    }
+
+    //main functions
     void GameObject::play() {
         initgame();
         bool flag = true;
         int gcode = 0;
 
         file::FileManager fm;
-        /*
-        std::vector<game::Enemy> enemies = {
-
-			//id , codifier , name , description , level , initiative , hp , moves , mechresist , physresist , splashresist
-
-            {1, "ENM", "Кот-Чести", "Занимает низшую иерархию в криминальном мире города К. Интересно, ты будешь таким же?", 1, 2, 5, 1, 0, 1, 0,5,1,10,10},
-            {2, "ENM", "Кот-Солдат", "<Вы привыкли стрелять и нет места, куда податься? Рады приветствовать вас в семье!> из рекламной кампании семьи К.", 1, 1, 5, 1, 2, 2, 3,5,1,10,10},
-			{3, "ENM", "Кот-бандит", "Улицы переполнены сбродом и это - их главный представитель.", 2, 1, 7, 1, 2, 3, 2,7,1,10,10},
-			{4, "ENM", "Кот-убийца", "Наемный убийца, который может нанести вам серьезный урон, если вы не будете осторожны.", 2, 3, 10, 3, 3, 4, 2,10,3,10,10},
-            {5, "ENM", "Хозяин улиц", "Представитель власти семьи на улицах города К.", 3, 10, 20, 4, 5, 7, 4,20,4,10,10},
-            {6, "ENM", "Кот-Громила", "На удивление они занимаются тем, что громят.", 2, 5, 8, 3, 3, 3, 4,8,3,10,10},
-            {7, "ENM", "Кот-стрелок", "Отчаянные ребята. Ни одной пули не устрашатся", 3, 6, 10, 2, 5, 3, 5,10,2,10,10},
-            {8, "ENM", "Кот-подрывник", "БУМ!", 3, 6, 10, 2, 2, 2, 7,10,2,10,10},
-            {9, "ENM", "Кот-дон", "Правая ежовая руковица главы семьи.", 4, 10, 25, 5, 6, 6, 4,25,5,10,10},
-            {10, "ENM", "Великий и ужасный глава семьи - Мехин", "Пожалуйте все ваши фишки на стол, господа!", 5, 15, 35, 6, 10, 10, 10,35,6,10,10},
-            {11, "NPC", "КоТ-Ерев - он же ваш крупье на все игры", "Непревзойденный крупье! Ослепительный ведущий! И никакого мухлежа", 100, 9999, 9999, 9999, 9999, 9999, 9999,9999,9999,10,10},
-            {12, "NPC", "Пабло Котобар", "Продает самый лучший товар на рынке. Бери скорее, не пожалеешь!", 100, 100, 1000, 100, 9999, 9999, 9999,1000,100,10,10},
-            {13, "NPC", "Виктор Кот", "Семье нужны пушки - Виктор дает пушки. К дальнейшему сотрудничеству мы не готовы.", 100, 100, 1000, 100, 9999, 9999, 9999,1000,100,10,10},
-            {14, "ENM", "Кот-генерал", "Высокопоставленный член семьи К., который может вызвать подкрепление в виде других котов.", 5, 4, 25, 3, 5, 6, 4,25,3 ,10,10},
-        };
-		enemies[0].enableCards = { 1,2 }; //Кот-Чести 
-		enemies[1].enableCards = { 2,3,4,5,8 }; //Кот-Солдат 
-		enemies[2].enableCards = { 1,2,3,4,17}; //Кот-бандит 
-		enemies[3].enableCards = { 7,8 }; //Кот-убийца  !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		enemies[4].enableCards = { 2,3,5,6,9,15,18}; //Хозяин улиц 
-		enemies[5].enableCards = { 2,3,4,5,6,8 }; //Кот-Громила 
-		enemies[6].enableCards = { 3,5,9,15 }; //Кот-стрелок 
-		enemies[7].enableCards = { 1,2,3,4,7,16 }; //Кот-подрывник
-		enemies[8].enableCards = { 3,5,6,7,8,9,12,14,15,18 }; //Кот-дон 
-		enemies[9].enableCards = { 5,6,7,8,9,10,11,12,14,15,19,20,21 }; //Великий и ужасный глава семьи - Мехин 
-		enemies[10].enableCards = { 10 }; //КоТ-Ерев 
-		enemies[11].enableCards = { 8,9 }; //Пабло Котобар 
-		enemies[12].enableCards = { 1}; //Виктор Кот 
-		enemies[13].enableCards = { 1,2 }; //Кот-генерал !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-        std::vector<game::CardItem> cards = {
-            //CardItem(int Id, std::string Codifier, std::string Name, std::string Description, int Level, int Cost, DamageType Dtype, int Damage)
-            //{
-			//id = Id;
-			//codifier = Codifier;
-			//name = Name;
-			//description = Description;
-			//level = Level;
-			//cost = Cost;
-			//dtype = Dtype;
-			//damage = Damage;
-            //}
-			{1,  "CRD", "Плевок шерстью", "мгъя!", 1, 1, game::DamageType::physycs, 1,10},
-			{2,  "CRD", "удар лапкой", "Пушистое наслаждение. Вас погладили по-кошачьи.", 1, 1, game::DamageType::physycs, 1,10},
-			{3,  "CRD", "удар когтями", "Цап-царапка!", 2, 1, game::DamageType::physycs, 2,10},
-			{4,  "CRD", "Вкусный обед", "Блоунти - райское наслаждение.", 1, 1, game::DamageType::heal, 2,10},
-			{5,  "CRD", "Кольт", "Что может быть лучше нестареющей классики?", 2, 4, game::DamageType::mechanics, 6,10},
-			{6,  "CRD", "Стилеты", "Как там говорилось? Или вилкой в глаз, или...Не важно, запомни одно. Никогда не выбриай стилет!", 3, 3, game::DamageType::physycs, 4,10},
-			{7,  "CRD", "Мышеловка с динамитной шашкой", "Да, Вы все верно прочитали.", 4, 7, game::DamageType::physycs_splash, 6,10},
-			{8,  "CRD", "Пакет кошачьей мяты", "Целебное средство, о котором знает всякий зверь города К.", 1, 3, game::DamageType::heal, 5,10},
-			{9,  "CRD", "Мешок кошачьей мяты", "Товар, благодаря которому известный Котальпоне обрел свою известность.", 3, 5, game::DamageType::heal, 10,10},
-            {10, "CRD", "Гримуар по Це Пе Пе","Лишь два кота в городе К. владеют знаниями, записанные в этом гримуаре. И признаюсь честно, не желал бы я пересечь им дорогу.",9999,9999,game::DamageType::unreal,9999,10},
-
-            {11, "CRD", "Томми-ган", "Старый добрый Томм", 5, 10, game::DamageType::mechanics, 12,10},
-            {12, "CRD", "Лупара", "В нашем деле скорость решающий фактор.", 4, 8, game::DamageType::mechanics, 10,10},
-            {13, "CRD", "Девять жизней", "Хм? Так сказки о девяти кошачьих жизнях - не ложь? Что же, надеюсь, что хотя бы эту жизнь ты будешь ценить.", 5, 0, game::DamageType::heal, 0,10}, //!!!!!!!!!!!!
-            {14, "CRD", "Винчестер", "Надежнее оружия вам не найти.", 4, 5, game::DamageType::mechanics, 5,10},
-            {15, "CRD", "Маузер", "Он из Германия прибыть. Целебных пулей привозить.", 3, 3, game::DamageType::mechanics, 4,10},
-            {16, "CRD", "Наган 1895", "Хм, кажется там остался всего один патрон.", 5, 0, game::DamageType::mechanics, 0,10}, //!!!!!!!!!!!!!!!!!!!
-            {17, "CRD", "Деревянная дубинка", "За неимением лучшего.", 2, 3, game::DamageType::physycs, 2,10},
-            {18, "CRD", "Стальная дубинка", "За неимением наилучшего.", 3, 4, game::DamageType::physycs, 4,10},
-            {19, "CRD", "Привет из будущего", "Это миниган?", 5, 10, game::DamageType::mechanics, 20,10},
-            {20, "CRD", "Накодил","SDL_Texture*...Так, что там дальше...",5,10,game::DamageType::summon,2,10}, //!!!!!!!!!!!!!!!!
-
-            {21, "CRD", "Кавардак", "-то здесь не Хмм, что так, определенно не вот что", 5, 10, game::DamageType::specific, 0,10 }, //!!!!!!!!!!!!!!!!!
-
-        };
-
-
-        */
-
-        //std::vector<game::Enemy> enemies;
-
-
-        //fm.writeEnemiesToFile("enemies.json", enemies);
-        auto enemies = fm.readEnemiesFromFile("enemies.json");
-        std::cout << "Загружено " << enemies.size() << " врагов\n";
-
-		//fm.writeCardsToFile("cards.json", cards);
-		auto cards = fm.readCardsFromFile("cards.json");
-		std::cout << "Загружено " << cards.size() << " карт\n";
 
         while (flag) {
             ShowPlayerStats();
             gcode = MapSegment();
             switch (gcode) {
             case 1:
-                if (BattleSegment() == 0) flag = 0;   // если игрок умер – выход
-                std::cout << "BATTLE!" << std::endl;
+                if (BattleSegment() == 0) flag = 0;
                 break;
             case 2:
-                // ShopSegment(); // пока заглушка
-                std::cout << "SHOP!" << std::endl;
+                ShopSegment();
                 break;
             case 3:
-                // SpecialSegment(); // пока заглушка
-                std::cout << "SPECIAL!" << std::endl;
+                SpecialSegment();
                 break;
             case 4:
-                std::cout << "current floor:" << currentFloor << std::endl;
-                std::cout << "BOSS BATTLE!" << std::endl;
-                std::cout << "next floor!" << std::endl;
                 currentNodeId = 0;
                 map = GenerateGraph();
                 break;
@@ -133,7 +60,122 @@ namespace game {
             if (gcode == 0 || gcode == 5) flag = 0;
         }
     }
+    void GameObject::applyEvent(const Event& e) {
+        switch (e.type) {
+        case AddItem: {
+            player.getEnableCards().push_back(e.value1);
+            std::string cardName = "неизвестная карта";
+            for (const auto& c : cards) {
+                if (c.id == e.value1) {
+                    cardName = c.name;
+                    break;
+                }
+            }
+            std::cout << COLOR_GREEN << "+ Добавлена карта: " << cardName << COLOR_RESET << "\n";
+            break;
+        }
+        case RemoveItem: {
+            if (!player.getEnableCards().empty()) {
+                int idx = rand() % player.getEnableCards().size();
+                int removedId = player.getEnableCards()[idx];
+                std::string cardName = "неизвестная карта";
+                for (const auto& c : cards) {
+                    if (c.id == removedId) {
+                        cardName = c.name;
+                        break;
+                    }
+                }
+                player.getEnableCards().erase(player.getEnableCards().begin() + idx);
+                std::cout << COLOR_RED << "- Удалена карта: " << cardName << COLOR_RESET << "\n";
+            }
+            else {
+                std::cout << "Нет карт для удаления.\n";
+            }
+            break;
+        }
+        case AddResist: {
+            if (e.value1 == 0) {
+                player.addMechresist(e.value2);
+                std::cout << COLOR_GREEN << "+ Мехresist увеличен на " << e.value2 << " (теперь " << player.getMechresist() << ")" << COLOR_RESET << "\n";
+            }
+            else if (e.value1 == 1) {
+                player.addPhysresist(e.value2);
+                std::cout << COLOR_GREEN << "+ Физresist увеличен на " << e.value2 << " (теперь " << player.getPhysresist() << ")" << COLOR_RESET << "\n";
+            }
+            else if (e.value1 == 2) {
+                player.addSplashresist(e.value2);
+                std::cout << COLOR_GREEN << "+ Сплешresist увеличен на " << e.value2 << " (теперь " << player.getSplashresist() << ")" << COLOR_RESET << "\n";
+            }
+            break;
+        }
+        case RemoveResist: {
+            if (e.value1 == 0) {
+                player.addMechresist(-e.value2);
+                std::cout << COLOR_RED << "- Мехresist уменьшен на " << e.value2 << " (теперь " << player.getMechresist() << ")" << COLOR_RESET << "\n";
+            }
+            else if (e.value1 == 1) {
+                player.addPhysresist(-e.value2);
+                std::cout << COLOR_RED << "- Физresist уменьшен на " << e.value2 << " (теперь " << player.getPhysresist() << ")" << COLOR_RESET << "\n";
+            }
+            else if (e.value1 == 2) {
+                player.addSplashresist(-e.value2);
+                std::cout << COLOR_RED << "- Сплешresist уменьшен на " << e.value2 << " (теперь " << player.getSplashresist() << ")" << COLOR_RESET << "\n";
+            }
+            break;
+        }
+        case AddMoney: {
+            player.addMoney(e.value1);
+            std::cout << COLOR_GREEN << "+ " << e.value1 << " фишек" << COLOR_RESET << "\n";
+            break;
+        }
+        case RemoveMoney: {
+            player.addMoney(-e.value1);
+            std::cout << COLOR_RED << "- " << e.value1 << " фишек" << COLOR_RESET << "\n";
+            break;
+        }
+        case AddMoves: {
+            player.addMaxMoves(e.value1);
+            std::cout << COLOR_GREEN << "+ Максимальное количество ходов увеличено на " << e.value1 << " (теперь " << player.getMaxMoves() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        case RemoveMoves: {
+            player.addMaxMoves(-e.value1);
+            std::cout << COLOR_RED << "- Максимальное количество ходов уменьшено на " << e.value1 << " (теперь " << player.getMaxMoves() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        case AddMaxHp: {
+            player.addMaxHp(e.value1);
+            std::cout << COLOR_GREEN << "+ Максимальное HP увеличено на " << e.value1 << " (теперь " << player.getMaxHp() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        case RemoveMaxHp: {
+            player.addMaxHp(-e.value1);
+            std::cout << COLOR_RED << "- Максимальное HP уменьшено на " << e.value1 << " (теперь " << player.getMaxHp() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        case AddHp: {
+            int oldHp = player.getHp();
+            player.setHp(oldHp + e.value1);
+            int healed = player.getHp() - oldHp;
+            std::cout << COLOR_GREEN << "+ Восстановлено " << healed << " HP (теперь " << player.getHp() << "/" << player.getMaxHp() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        case RemoveHp: {
+            int oldHp = player.getHp();
+            int newHp = oldHp - e.value1;
+            if (newHp < 1) newHp = 1;
+            player.setHp(newHp);
+            int damage = oldHp - player.getHp();
+            std::cout << COLOR_RED << "- Получено " << damage << " урона (теперь " << player.getHp() << "/" << player.getMaxHp() << ")" << COLOR_RESET << "\n";
+            break;
+        }
+        default:
+            std::cout << "Неизвестный тип события.\n";
+            break;
+        }
+    }
 
+    //show functions
     void GameObject::ShowPlayerStats() {
         system("cls");
         const int WIDTH = 80;
@@ -150,7 +192,6 @@ namespace game {
             std::cout << "(нет)";
         }
         else {
-            // Собираем уникальные названия карт (без дубликатов)
             std::set<std::string> uniqueNames;
             for (int id : enableCards) {
                 for (const auto& c : cards) {
@@ -174,81 +215,10 @@ namespace game {
         std::cin.get();
         system("cls");
     }
-
-	void GameObject::initapp() {
-		totalvolume = 1.0f;
-		musicvolume = 1.0f;
-		effectvolume = 1.0f;
-		soundvolume = 1.0f;
-	}
-
-    void GameObject::initgame() {
-        srand(1);
-        seed = abs(1 + (int)rand % 10000);
-        currentFloor = 1;
-        runstart = time(nullptr);
-        currentNodeId = 0;
-        map = GenerateGraph();
-
-        // Загрузка данных из JSON
-        file::FileManager fm;
-        enemys = fm.readEnemiesFromFile("enemies.json");
-        cards = fm.readCardsFromFile("cards.json");
-        std::cout << "Loaded " << enemys.size() << " enemies, " << cards.size() << " cards\n";
-    }
-
-    int GameObject::MapSegment() {
-        int returnval = 0;
-
-        std::cout << enemys[0].maxhp << std::endl;
-        std::cout << enemys[1].maxhp << std::endl;
-        std::cout << enemys[2].maxhp << std::endl;
-        std::cout << enemys[3].maxhp << std::endl;
-        std::cout << enemys[4].maxhp << std::endl;
-        std::cout << enemys[5].maxhp << std::endl;
-
-
-        // Глобальные настройки отображения
-        
-        // 0 - Завершение игры
-        // 1 - Переход в боевую сцену
-		// 2 - Переход в сцену магазина
-        // 3 - Переход в сцену SPECIAL
-        // 4 - Переход на след. этаж
-
-        printGraphAscii(map, currentNodeId);
-
-        std::cout << "Enter yr next node to travel: ";
-        std::cin >> currentNodeId;
-
-        switch (map.nodes[currentNodeId].type)
-        {
-        case BATTLE:
-            return 1;
-            break;
-        case SHOP:
-            return 2;
-            break;
-		case SPECIAL:
-            return 3;
-            break;
-        case BOSS:
-            currentFloor++;
-            return 4;
-            break;
-        default:
-            return 404;
-            break;
-        }
-    }
-
-    const int SEPARATOR_WIDTH = 80;
-
     void GameObject::printSeparator(char ch, int width) {
         for (int i = 0; i < width; ++i) std::cout << ch;
         std::cout << "\n";
     }
-
     void GameObject::printMainHeader() {
         printSeparator('=', SEPARATOR_WIDTH);
         std::string title = "Карты на стол господа!";
@@ -256,14 +226,11 @@ namespace game {
         std::cout << std::string(padding, ' ') << title << "\n";
         printSeparator('=', SEPARATOR_WIDTH);
     }
-
     void GameObject::printTopStats(const std::vector<game::Enemy>& battleEnemies,
         int playerHp, int playerMaxHp) {
-        // Игрок (синий)
         std::cout << COLOR_BLUE << "Игрок:" << COLOR_RESET << "\n";
         std::cout << COLOR_BLUE << "  Хп: " << playerHp << "/" << playerMaxHp << COLOR_RESET << "\n\n";
 
-        // Враги (красные)
         for (size_t i = 0; i < battleEnemies.size(); ++i) {
             const auto& e = battleEnemies[i];
             std::cout << COLOR_RED << e.name << ":" << COLOR_RESET << "\n";
@@ -271,7 +238,6 @@ namespace game {
         }
         printSeparator('-', SEPARATOR_WIDTH);
     }
-
     void GameObject::printHandAndMoves(const std::vector<int>& playerHand,
         int playerMovesRemaining,
         const std::vector<game::CardItem>& cards) {
@@ -309,7 +275,6 @@ namespace game {
         printSeparator('=', SEPARATOR_WIDTH);
         std::cout << "Ваш выбор: ";
     }
-
     void GameObject::printInspectCards(const std::vector<int>& playerHand,
         const std::vector<game::CardItem>& cards) {
         system("cls");
@@ -350,7 +315,6 @@ namespace game {
         std::cin.get();
         system("cls");
     }
-
     void GameObject::printConsequences(const std::string& message) {
         system("cls");
         printSeparator('=', SEPARATOR_WIDTH);
@@ -363,7 +327,6 @@ namespace game {
         std::cin.get();
         system("cls");
     }
-
     void GameObject::printInspectMenu(const std::vector<game::Enemy>& battleEnemies) {
         system("cls");
         printSeparator('=', SEPARATOR_WIDTH);
@@ -381,18 +344,89 @@ namespace game {
         std::cin.get();
         system("cls");
     }
-
     void GameObject::waitForEnter() {
         std::cout << "\nЖдем подтверждения ставки от вас...(Нажмите Enter)";
         std::cin.ignore(1000, '\n');
         std::cin.get();
         system("cls");
     }
-    
+
+    //segments functions
+    int GameObject::MapSegment() {
+        // 0 - Завершение игры
+        // 1 - Переход в боевую сцену
+        // 2 - Переход в сцену магазина
+        // 3 - Переход в сцену SPECIAL
+        // 4 - Переход на след. этаж
+
+        printGraphAscii(map, currentNodeId);
+
+        if (currentNodeId < 0 || currentNodeId >= (int)map.nodes.size()) {
+            std::cout << "Ошибка: текущий узел не существует.\n";
+            return 0;
+        }
+
+        const auto& nextNodes = map.nodes[currentNodeId].next;
+        if (nextNodes.empty()) {
+            std::cout << "Из текущего узла нет доступных переходов. Завершение игры.\n";
+            return 0;
+        }
+
+        std::cout << "Доступные узлы для перехода: ";
+        bool first = true;
+        for (int nodeId : nextNodes) {
+            if (!first) std::cout << ", ";
+            const auto& node = map.nodes[nodeId];
+            const char* color = COLOR_RESET;
+            switch (node.type) {
+            case START:   color = COLOR_GREEN;   break;
+            case BATTLE:  color = COLOR_RED;     break;
+            case SHOP:    color = COLOR_BLUE;    break;
+            case SPECIAL: color = COLOR_YELLOW;  break;
+            case BOSS:    color = COLOR_MAGENTA; break;
+            default:      color = COLOR_RESET;   break;
+            }
+            std::cout << color << nodeId << COLOR_RESET;
+            first = false;
+        }
+        std::cout << "\n";
+
+        int nextNode = -1;
+        while (true) {
+            std::cout << "Enter your next node to travel: ";
+            std::cin >> nextNode;
+            if (nextNodes.find(nextNode) != nextNodes.end()) {
+                break;
+            }
+            std::cout << "Неверный узел. Выберите один из доступных: ";
+            for (int nodeId : nextNodes) {
+                const auto& node = map.nodes[nodeId];
+                const char* color = COLOR_RESET;
+                switch (node.type) {
+                case START:   color = COLOR_GREEN;   break;
+                case BATTLE:  color = COLOR_RED;     break;
+                case SHOP:    color = COLOR_BLUE;    break;
+                case SPECIAL: color = COLOR_YELLOW;  break;
+                case BOSS:    color = COLOR_MAGENTA; break;
+                default:      color = COLOR_RESET;   break;
+                }
+                std::cout << color << nodeId << COLOR_RESET << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        currentNodeId = nextNode;
+
+        switch (map.nodes[currentNodeId].type) {
+        case BATTLE:  return 1;
+        case SHOP:    return 2;
+        case SPECIAL: return 3;
+        case BOSS:    currentFloor++; return 4;
+        default:      return 404;
+        }
+    }
     int GameObject::BattleSegment() {
-        // ------------------------------------------------------------------
-        // 1. Выбор противников (копии из enemys)
-        // ------------------------------------------------------------------
+        // 1. Выбор противников
         std::vector<Enemy*> availableEnemies;
         for (auto& e : enemys) availableEnemies.push_back(&e);
 
@@ -419,18 +453,14 @@ namespace game {
             return 1;
         }
 
-        // ------------------------------------------------------------------
         // 2. Локальное состояние игрока
-        // ------------------------------------------------------------------
         int playerHp = player.getHp();
         int playerMaxHp = player.getMaxHp();
         std::vector<int> playerEnableCards = player.getEnableCards();
         std::vector<int> playerHand;
         int playerMovesRemaining = 0;
 
-        // ------------------------------------------------------------------
-        // 3. Вспомогательные лямбды
-        // ------------------------------------------------------------------
+        // 3. Лямбды
         auto getCardById = [&](int id) -> CardItem* {
             for (auto& c : cards) if (c.id == id) return &c;
             return nullptr;
@@ -495,14 +525,12 @@ namespace game {
             if (enemy.hp > enemy.maxhp) enemy.hp = enemy.maxhp;
             };
 
-        // ------------------------------------------------------------------
         // 4. Основной цикл боя
-        // ------------------------------------------------------------------
         bool playerAlive = true;
         bool enemiesAlive = true;
 
         while (playerAlive && enemiesAlive) {
-            // Сбор участников по инициативе
+            // Сбор по инициативе
             struct Turn { bool isPlayer; int initiative; int enemyIndex; };
             std::vector<Turn> turns;
             turns.push_back({ true, player.getInitiative(), -1 });
@@ -518,7 +546,6 @@ namespace game {
                 if (!playerAlive || !enemiesAlive) break;
 
                 if (turn.isPlayer) {
-                    // ---------- ХОД ИГРОКА ----------
                     playerMovesRemaining = player.getMaxMoves();
                     drawCards(playerHand, playerEnableCards, 2, 6);
                     bool endTurn = false;
@@ -601,10 +628,8 @@ namespace game {
                         for (auto& e : battleEnemies) if (e.hp > 0) enemiesAlive = true;
                         if (!enemiesAlive) break;
                     }
-                    // НЕ возвращаем оставшиеся карты! Они остаются в руке на следующий ход.
                 }
                 else {
-                    // ---------- ХОД ВРАГА ----------
                     Enemy& enemy = battleEnemies[turn.enemyIndex];
                     if (enemy.hp <= 0) continue;
 
@@ -613,7 +638,6 @@ namespace game {
                     bool played = false;
                     std::string consequence;
 
-                    // Лечение при низком HP
                     if (enemy.hp < enemy.maxhp * 0.3) {
                         for (auto it = enemy.hand.begin(); it != enemy.hand.end(); ++it) {
                             CardItem* card = getCardById(*it);
@@ -630,7 +654,6 @@ namespace game {
                         }
                     }
                     if (!played) {
-                        // Атака
                         std::vector<int> attackCards;
                         for (int cid : enemy.hand) {
                             CardItem* card = getCardById(cid);
@@ -659,9 +682,7 @@ namespace game {
             for (auto& e : battleEnemies) if (e.hp > 0) enemiesAlive = true;
         }
 
-        // ------------------------------------------------------------------
         // 5. Завершение боя
-        // ------------------------------------------------------------------
         if (!playerAlive) {
             printSeparator('=', SEPARATOR_WIDTH);
             std::cout << "ВЫ ПОВЕРЖЕНЫ...\n";
@@ -670,7 +691,6 @@ namespace game {
             return 0;
         }
         else {
-            // Подсчёт суммарных наград
             int totalExp = 0;
             int totalMoney = 0;
             for (const auto& e : battleEnemies) {
@@ -678,15 +698,11 @@ namespace game {
                 totalMoney += e.gainmoney;
             }
 
-            // Применяем награды
             player.addExp(totalExp);
             player.addMoney(totalMoney);
-
-            // Обновляем HP и колоду
             player.setHp(playerHp);
             player.getEnableCards() = playerEnableCards;
 
-            // Вывод результатов
             printSeparator('=', SEPARATOR_WIDTH);
             std::cout << "ПОБЕДА!\n";
             std::cout << "Получено опыта: " << totalExp << "\n";
@@ -697,27 +713,167 @@ namespace game {
             return 1;
         }
     }
-    
-    int GameObject::ShopSegment() {
-
-
-        return 0;
-    }
     int GameObject::SpecialSegment() {
+        if (events.empty()) {
+            std::cout << "Нет доступных событий.\n";
+            waitForEnter();
+            return 0;
+        }
+        int idx = rand() % events.size();
+        const Event& e = events[idx];
+        system("cls");
+        printSeparator('=', 80);
+        std::cout << "СОБЫТИЕ\n";
+        printSeparator('=', 80);
+        std::cout << e.description << "\n\n";
+        printSeparator('-', 80);
+        applyEvent(e);
+        printSeparator('=', 80);
+        std::cout << "\nНажмите Enter для продолжения...";
+        std::cin.ignore(1000, '\n');
+        std::cin.get();
+        system("cls");
+        return 0;
+    }
+    int GameObject::ShopSegment() {
+        const int SHOP_CARDS_COUNT = 5;
+        struct ShopCard {
+            CardItem card;
+            int price;
+        };
+        std::vector<ShopCard> shopCards;
+        int playerLevel = player.getLevel();
 
+        auto getRandomCardOfLevel = [&](int level) -> CardItem {
+            std::vector<CardItem> candidates;
+            for (const auto& c : cards) {
+                if (c.level == level) candidates.push_back(c);
+            }
+            if (candidates.empty() && !cards.empty()) return cards[0];
+            if (candidates.empty()) return CardItem();
+            return candidates[rand() % candidates.size()];
+            };
 
+        for (int i = 0; i < SHOP_CARDS_COUNT; ++i) {
+            int targetLevel = playerLevel;
+            if (playerLevel < 5) {
+                int r = rand() % 100;
+                if (r < 20) targetLevel = std::max(1, playerLevel - 1);
+                else if (r < 80) targetLevel = playerLevel;
+                else if (r < 95) targetLevel = std::min(5, playerLevel + 1);
+                else targetLevel = std::min(5, playerLevel + 2);
+            }
+            else {
+                targetLevel = 5;
+            }
+            CardItem chosen = getRandomCardOfLevel(targetLevel);
+            shopCards.push_back({ chosen, chosen.moneycost });
+        }
+
+        bool exitShop = false;
+        while (!exitShop) {
+            system("cls");
+            printSeparator('=', 80);
+            std::cout << "МАГАЗИН\n";
+            printSeparator('=', 80);
+            std::cout << COLOR_YELLOW << "Ваши фишки: " << player.getMoney() << COLOR_RESET << "\n\n";
+
+            if (shopCards.empty()) {
+                std::cout << "В магазине больше нет карт.\n";
+                std::cout << "\n0 - Выйти из магазина\n";
+                std::cout << "Ваш выбор: ";
+                int choice;
+                std::cin >> choice;
+                if (choice == 0) exitShop = true;
+                else std::cout << "Неверный ввод.\n";
+                waitForEnter();
+                continue;
+            }
+
+            std::cout << "Доступные карты:\n";
+            for (size_t i = 0; i < shopCards.size(); ++i) {
+                std::cout << i + 1 << ". " << shopCards[i].card.name
+                    << " (ур." << shopCards[i].card.level
+                    << ") - цена: " << shopCards[i].price << "\n";
+            }
+            std::cout << "\n0 - Выйти из магазина\n";
+            std::cout << "9 - Осмотреть карту\n";
+            std::cout << "Ваш выбор: ";
+            int choice;
+            std::cin >> choice;
+            if (choice == 0) {
+                exitShop = true;
+                break;
+            }
+            else if (choice == 9) {
+                std::cout << "Введите номер карты для осмотра (1.." << shopCards.size() << "): ";
+                int inspectIdx;
+                std::cin >> inspectIdx;
+                if (inspectIdx >= 1 && inspectIdx <= (int)shopCards.size()) {
+                    const CardItem& c = shopCards[inspectIdx - 1].card;
+                    system("cls");
+                    printSeparator('=', 80);
+                    std::cout << "--- " << c.name << " ---\n";
+                    std::cout << "Описание: " << c.description << "\n";
+                    std::cout << "Уровень: " << c.level << "\n";
+                    std::cout << "Стоимость ходов: " << c.cost << "\n";
+                    std::cout << "Тип урона: ";
+                    switch (c.dtype) {
+                    case DamageType::physycs: std::cout << "Физический"; break;
+                    case DamageType::mechanics: std::cout << "Механический"; break;
+                    case DamageType::physycs_splash: std::cout << "Физический (сплеш)"; break;
+                    case DamageType::heal: std::cout << "Лечение"; break;
+                    case DamageType::unreal: std::cout << "Нереальный"; break;
+                    default: std::cout << "Специальный"; break;
+                    }
+                    std::cout << "\nУрон: " << c.damage << "\n";
+                    std::cout << "Цена: " << shopCards[inspectIdx - 1].price << "\n";
+                    printSeparator('=', 80);
+                    std::cout << "\nНажмите Enter для возврата...";
+                    std::cin.ignore(1000, '\n');
+                    std::cin.get();
+                }
+                else {
+                    std::cout << "Неверный номер.\n";
+                    waitForEnter();
+                }
+            }
+            else if (choice >= 1 && choice <= (int)shopCards.size()) {
+                ShopCard& selected = shopCards[choice - 1];
+                if (player.getMoney() >= selected.price) {
+                    player.addMoney(-selected.price);
+                    player.getEnableCards().push_back(selected.card.id);
+                    std::cout << COLOR_GREEN << "Вы купили карту \"" << selected.card.name << "\"!" << COLOR_RESET << "\n";
+                    shopCards.erase(shopCards.begin() + (choice - 1));
+                    waitForEnter();
+                }
+                else {
+                    std::cout << COLOR_RED << "Недостаточно фишек!" << COLOR_RESET << "\n";
+                    waitForEnter();
+                }
+            }
+            else {
+                std::cout << "Неверный ввод.\n";
+                waitForEnter();
+            }
+        }
         return 0;
     }
 
+    //graph functions
     GameObject::Graph GameObject::GenerateGraph() {
         Graph g;
         switch (currentFloor)
         {
         case 1:
-            g = generateRoguelikeGraph(seed, FIRST_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS, FIRST_FLOOR_BATTLES, FIRST_FLOOR_SHOPS, FIRST_FLOOR_SPECIALS, MAX_OUTGOING, MAX_EXTRA);
+            g = generateRoguelikeGraph(-1, FIRST_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS,
+                FIRST_FLOOR_BATTLES, FIRST_FLOOR_SHOPS, FIRST_FLOOR_SPECIALS,
+                MAX_OUTGOING, MAX_EXTRA);
             break;
         case 2:
-            g = generateRoguelikeGraph(seed, SECOND_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS, SECOND_FLOOR_BATTLES, SECOND_FLOOR_SHOPS, SECOND_FLOOR_SPECIALS, MAX_OUTGOING, MAX_EXTRA);
+            g = generateRoguelikeGraph(-1, SECOND_FLOOR_LAYERS, MIN_NODES_LAYERS, MAX_NODES_LAYERS,
+                SECOND_FLOOR_BATTLES, SECOND_FLOOR_SHOPS, SECOND_FLOOR_SPECIALS,
+                MAX_OUTGOING, MAX_EXTRA);
             break;
         default:
             break;
@@ -761,7 +917,6 @@ namespace game {
         if (from.type == SPECIAL && to.type == SPECIAL) return false;
         return true;
     }
-
     void GameObject::connectLayers(Graph& graph,
         const std::vector<int>& prevLayer,
         const std::vector<int>& nextLayer,
@@ -818,8 +973,6 @@ namespace game {
                 graph.addEdge(from, to);
         }
     }
-
-
     GameObject::Graph GameObject::generateRoguelikeGraph(
         int seed,
         int NodePathLen,
@@ -830,8 +983,6 @@ namespace game {
         int minShopVal, int maxShopVal,
         int minSpecialVal, int maxSpecialVal)
     {
-        if (seed >= 0) srand(seed);
-        else srand((unsigned)time(NULL));
 
         Graph graph;
         graph.addNode(START, 0);
@@ -878,18 +1029,16 @@ namespace game {
                 }
             }
         }
-
         return graph;
     }
-
     void GameObject::printGraphAscii(const Graph& graph, int startId) {
-        const int NODE_WIDTH = 11;          // ширина блока (символов)
-        const int NODE_HEIGHT = 5;          // высота блока
-        const int GAP_HORZ = NODE_WIDTH;    // расстояние между блоками = целый блок
-        const int GAP_VERT = NODE_HEIGHT * 1.5; // вертикальный отступ (7-8 символов)
-        const int LEFT_MARGIN = 2;          // небольшой отступ слева для красоты
+        const int NODE_WIDTH = 11;
+        const int NODE_HEIGHT = 5;
+        const int GAP_HORZ = NODE_WIDTH;
+        const int GAP_VERT = NODE_HEIGHT * 1.5;
+        const int LEFT_MARGIN = 2;
 
-        // 1. Определяем уровни (BFS)
+        // 1. Определяем уровни
         std::map<int, int> nodeLevel;
         std::queue<int> q;
         nodeLevel[startId] = 0;
@@ -910,7 +1059,7 @@ namespace game {
         for (const auto& p : nodeLevel) maxLevel = std::max(maxLevel, p.second);
         std::vector<std::vector<int>> layers(maxLevel + 1);
         for (const auto& p : nodeLevel) layers[p.second].push_back(p.first);
-        for (auto& layer : layers) std::sort(layer.begin(), layer.end()); // сортируем по id
+        for (auto& layer : layers) std::sort(layer.begin(), layer.end());
 
         // 3. Для каждого слоя вычисляем его ширину и смещение для центрирования
         std::vector<int> layerWidth(layers.size());
@@ -927,8 +1076,8 @@ namespace game {
             layerOffset[lvl] = (maxWidth - layerWidth[lvl]) / 2;
         }
 
-        // 4. Позиции узлов (уровень, индекс в слое)
-        std::map<int, std::pair<int, int>> nodePos; // id -> (level, index)
+        // 4. Позиции узлов
+        std::map<int, std::pair<int, int>> nodePos;
         for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
             for (size_t idx = 0; idx < layers[lvl].size(); ++idx) {
                 nodePos[layers[lvl][idx]] = { lvl, idx };
@@ -940,13 +1089,12 @@ namespace game {
         int totalHeight = layers.size() * NODE_HEIGHT + (layers.size() - 1) * GAP_VERT;
         std::vector<std::string> canvas(totalHeight, std::string(totalWidth, ' '));
 
-        // 6. Функция рисования узла без цвета (только символы)
+        // 6. Функция рисования узла без цвета
         auto drawNodeNoColor = [&](int level, int idx, int nodeId) {
             int y0 = level * (NODE_HEIGHT + GAP_VERT);
             int x0 = LEFT_MARGIN + layerOffset[level] + idx * (NODE_WIDTH + GAP_HORZ);
             const Node& node = graph.nodes[nodeId];
 
-            // Рамка
             for (int x = 0; x < NODE_WIDTH; ++x) {
                 canvas[y0][x0 + x] = (x == 0 || x == NODE_WIDTH - 1) ? '+' : '-';
                 canvas[y0 + NODE_HEIGHT - 1][x0 + x] = (x == 0 || x == NODE_WIDTH - 1) ? '+' : '-';
@@ -956,12 +1104,10 @@ namespace game {
                 canvas[y0 + y][x0 + NODE_WIDTH - 1] = '|';
             }
 
-            // ID
             std::string idStr = std::to_string(node.id);
             int idStart = x0 + (NODE_WIDTH - (int)idStr.size()) / 2;
             for (size_t i = 0; i < idStr.size(); ++i) canvas[y0 + 1][idStart + i] = idStr[i];
 
-            // Тип
             std::string typeStr;
             switch (node.type) {
             case START:   typeStr = "START"; break;
@@ -974,13 +1120,11 @@ namespace game {
             int typeStart = x0 + (NODE_WIDTH - (int)typeStr.size()) / 2;
             for (size_t i = 0; i < typeStr.size(); ++i) canvas[y0 + 2][typeStart + i] = typeStr[i];
 
-            // Значение
             std::string valStr = std::to_string(node.value);
             int valStart = x0 + (NODE_WIDTH - (int)valStr.size()) / 2;
             for (size_t i = 0; i < valStr.size(); ++i) canvas[y0 + 3][valStart + i] = valStr[i];
             };
 
-        // Рисуем все узлы
         for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
             for (size_t idx = 0; idx < layers[lvl].size(); ++idx) {
                 drawNodeNoColor(lvl, idx, layers[lvl][idx]);
@@ -1037,7 +1181,6 @@ namespace game {
         }
 
         // 8. Вывод с цветами
-        // Собираем все прямоугольники узлов для быстрой проверки принадлежности
         struct Rect { int x0, y0, x1, y1; int nodeId; };
         std::vector<Rect> rects;
         for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
@@ -1082,19 +1225,12 @@ namespace game {
             printLineWithColors(y, canvas[y]);
         }
     }
-
     void GameObject::generateNshowdefaultgraph() {
         double battleWeight = 1.7;
         double shopWeight = 1.0;
         double specialWeight = 1.0;
 
-        Graph g = generateRoguelikeGraph(
-            1335,
-            5,          
-            2, 4,       
-            battleWeight, shopWeight, specialWeight,
-            3, 2        
-        );
+        Graph g = generateRoguelikeGraph(-1, 5, 2, 4, battleWeight, shopWeight, specialWeight, 3, 2);
         g.print();
     }
 }
