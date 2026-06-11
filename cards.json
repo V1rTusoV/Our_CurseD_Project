@@ -2,6 +2,17 @@
     {
         "codifier": "CRD",
         "cost": 1,
+        "damage": 100,
+        "description": "Грязный шпельбрехер... все мы знаем каким образом ты собрал эту комбинацию...",
+        "dtype": "unreal",
+        "id": 0,
+        "level": 1,
+        "moneycost": 5,
+        "name": "Флеш-Рояль (Debug)"
+    },
+    {
+        "codifier": "CRD",
+        "cost": 1,
         "damage": 1,
         "description": "мгъя!",
         "dtype": "physycs",

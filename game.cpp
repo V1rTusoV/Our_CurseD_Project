@@ -1,8 +1,47 @@
 ﻿//Include block
 #include "game.h"
 #include "FileWork.h"
+#include <cctype>
+#include <limits>
 
-//game namespace
+const int SEPARATOR_WIDTH = 80;   // Глобальная константа, используется во всех UI-функциях
+
+namespace {
+    // Безопасное чтение целого числа с консоли
+    int safeGetInt(const std::string& prompt = "", int minVal = -1, int maxVal = -1) {
+        while (true) {
+            if (!prompt.empty()) {
+                std::cout << prompt;
+            }
+            std::string line;
+            std::getline(std::cin, line);
+            if (line.empty()) continue;
+            if (line == "i" || line == "I") {
+                return -2;   // специальное значение для вызова статистики
+            }
+            try {
+                size_t pos;
+                int value = std::stoi(line, &pos);
+                if (pos != line.size()) {
+                    throw std::invalid_argument("");
+                }
+                if (minVal != -1 && value < minVal) {
+                    std::cout << "Значение должно быть >= " << minVal << ". Повторите.\n";
+                    continue;
+                }
+                if (maxVal != -1 && value > maxVal) {
+                    std::cout << "Значение должно быть <= " << maxVal << ". Повторите.\n";
+                    continue;
+                }
+                return value;
+            }
+            catch (...) {
+                std::cout << "Ошибка: введите целое число. Повторите.\n";
+            }
+        }
+    }
+}
+
 namespace game {
 
     //init functions
@@ -12,6 +51,7 @@ namespace game {
         effectvolume = 1.0f;
         soundvolume = 1.0f;
     }
+
     void GameObject::initgame() {
         srand(static_cast<unsigned>(time(nullptr)));
         seed = rand();
@@ -21,7 +61,17 @@ namespace game {
         map = GenerateGraph();
 
         file::FileManager fm;
-        enemys = fm.readEnemiesFromFile("enemies.json");
+        auto allEnemies = fm.readEnemiesFromFile("enemies.json");
+        commonEnemies.clear();
+        availableBosses.clear();
+        for (const auto& e : allEnemies) {
+            if (e.codifier == "ENM")
+                commonEnemies.push_back(e);
+            else if (e.codifier == "BOS")
+                availableBosses.push_back(e);
+            else
+                commonEnemies.push_back(e); // fallback
+        }
         cards = fm.readCardsFromFile("cards.json");
         events = fm.readEventsFromFile("events.json");
     }
@@ -32,10 +82,7 @@ namespace game {
         bool flag = true;
         int gcode = 0;
 
-        file::FileManager fm;
-
         while (flag) {
-            ShowPlayerStats();
             gcode = MapSegment();
             switch (gcode) {
             case 1:
@@ -49,7 +96,16 @@ namespace game {
                 break;
             case 4:
                 currentNodeId = 0;
-                map = GenerateGraph();
+                if (currentFloor > MAX_FLOOR) {
+                    std::cout << "\n========================================\n";
+                    std::cout << "ПОЗДРАВЛЯЕМ! ВЫ ПРОШЛИ ИГРУ!\n";
+                    std::cout << "========================================\n";
+                    waitForEnter();
+                    flag = false;
+                }
+                else {
+                    map = GenerateGraph();
+                }
                 break;
             case 404:
                 std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
@@ -60,6 +116,7 @@ namespace game {
             if (gcode == 0 || gcode == 5) flag = 0;
         }
     }
+
     void GameObject::applyEvent(const Event& e) {
         switch (e.type) {
         case AddItem: {
@@ -178,10 +235,9 @@ namespace game {
     //show functions
     void GameObject::ShowPlayerStats() {
         system("cls");
-        const int WIDTH = 80;
-        printSeparator('=', WIDTH);
+        printSeparator('=', SEPARATOR_WIDTH);
         std::cout << "СТАТИСТИКА ИГРОКА\n";
-        printSeparator('=', WIDTH);
+        printSeparator('=', SEPARATOR_WIDTH);
         std::cout << "Уровень: " << player.getLevel() << "\n";
         std::cout << "Опыт: " << player.getExp() << " / " << player.getExpForNextLevel() << "\n";
         std::cout << "Фишки (деньги): " << player.getMoney() << "\n";
@@ -209,16 +265,18 @@ namespace game {
             }
         }
         std::cout << "\n";
-        printSeparator('=', WIDTH);
+        printSeparator('=', SEPARATOR_WIDTH);
         std::cout << "\nНажмите Enter для возврата...";
         std::cin.ignore(100, '\n');
         std::cin.get();
         system("cls");
     }
+
     void GameObject::printSeparator(char ch, int width) {
         for (int i = 0; i < width; ++i) std::cout << ch;
         std::cout << "\n";
     }
+
     void GameObject::printMainHeader() {
         printSeparator('=', SEPARATOR_WIDTH);
         std::string title = "Карты на стол господа!";
@@ -226,6 +284,7 @@ namespace game {
         std::cout << std::string(padding, ' ') << title << "\n";
         printSeparator('=', SEPARATOR_WIDTH);
     }
+
     void GameObject::printTopStats(const std::vector<game::Enemy>& battleEnemies,
         int playerHp, int playerMaxHp) {
         std::cout << COLOR_BLUE << "Игрок:" << COLOR_RESET << "\n";
@@ -238,6 +297,7 @@ namespace game {
         }
         printSeparator('-', SEPARATOR_WIDTH);
     }
+
     void GameObject::printHandAndMoves(const std::vector<int>& playerHand,
         int playerMovesRemaining,
         const std::vector<game::CardItem>& cards) {
@@ -275,6 +335,7 @@ namespace game {
         printSeparator('=', SEPARATOR_WIDTH);
         std::cout << "Ваш выбор: ";
     }
+
     void GameObject::printInspectCards(const std::vector<int>& playerHand,
         const std::vector<game::CardItem>& cards) {
         system("cls");
@@ -315,6 +376,7 @@ namespace game {
         std::cin.get();
         system("cls");
     }
+
     void GameObject::printConsequences(const std::string& message) {
         system("cls");
         printSeparator('=', SEPARATOR_WIDTH);
@@ -327,6 +389,7 @@ namespace game {
         std::cin.get();
         system("cls");
     }
+
     void GameObject::printInspectMenu(const std::vector<game::Enemy>& battleEnemies) {
         system("cls");
         printSeparator('=', SEPARATOR_WIDTH);
@@ -344,6 +407,7 @@ namespace game {
         std::cin.get();
         system("cls");
     }
+
     void GameObject::waitForEnter() {
         std::cout << "\nЖдем подтверждения ставки от вас...(Нажмите Enter)";
         std::cin.ignore(1000, '\n');
@@ -353,12 +417,7 @@ namespace game {
 
     //segments functions
     int GameObject::MapSegment() {
-        // 0 - Завершение игры
-        // 1 - Переход в боевую сцену
-        // 2 - Переход в сцену магазина
-        // 3 - Переход в сцену SPECIAL
-        // 4 - Переход на след. этаж
-
+        system("cls");
         printGraphAscii(map, currentNodeId);
 
         if (currentNodeId < 0 || currentNodeId >= (int)map.nodes.size()) {
@@ -390,11 +449,55 @@ namespace game {
             first = false;
         }
         std::cout << "\n";
+        std::cout << "нажмите i - для просмотра инвентаря\n";
 
         int nextNode = -1;
+        std::string input;
         while (true) {
             std::cout << "Enter your next node to travel: ";
-            std::cin >> nextNode;
+            std::cin >> input;
+            if (input == "i" || input == "I") {
+                ShowPlayerStats();
+                printGraphAscii(map, currentNodeId);
+                if (currentNodeId < 0 || currentNodeId >= (int)map.nodes.size()) {
+                    std::cout << "Ошибка: текущий узел не существует.\n";
+                    return 0;
+                }
+                const auto& nextNodes = map.nodes[currentNodeId].next;
+                if (nextNodes.empty()) {
+                    std::cout << "Из текущего узла нет доступных переходов. Завершение игры.\n";
+                    return 0;
+                }
+                std::cout << "Доступные узлы для перехода: ";
+                bool first = true;
+                for (int nodeId : nextNodes) {
+                    if (!first) std::cout << ", ";
+                    const auto& node = map.nodes[nodeId];
+                    const char* color = COLOR_RESET;
+                    switch (node.type) {
+                    case START:   color = COLOR_GREEN;   break;
+                    case BATTLE:  color = COLOR_RED;     break;
+                    case SHOP:    color = COLOR_BLUE;    break;
+                    case SPECIAL: color = COLOR_YELLOW;  break;
+                    case BOSS:    color = COLOR_MAGENTA; break;
+                    default:      color = COLOR_RESET;   break;
+                    }
+                    std::cout << color << nodeId << COLOR_RESET;
+                    first = false;
+                }
+                std::cout << "\n";
+                std::cout << "нажмите i - для просмотра инвентаря\n";
+                continue;
+            }
+            try {
+                size_t pos;
+                nextNode = std::stoi(input, &pos);
+                if (pos != input.size()) throw std::invalid_argument("не число");
+            }
+            catch (...) {
+                std::cout << "Неверный ввод. Введите номер узла или 'i'.\n";
+                continue;
+            }
             if (nextNodes.find(nextNode) != nextNodes.end()) {
                 break;
             }
@@ -421,52 +524,75 @@ namespace game {
         case BATTLE:  return 1;
         case SHOP:    return 2;
         case SPECIAL: return 3;
-        case BOSS:    currentFloor++; return 4;
+        case BOSS:
+            currentFloor++;
+            if (BattleSegment(true) == 0) return 0;
+            return 4;
         default:      return 404;
         }
     }
-    int GameObject::BattleSegment() {
-        // 1. Выбор противников
-        std::vector<Enemy*> availableEnemies;
-        for (auto& e : enemys) availableEnemies.push_back(&e);
 
-        for (size_t i = availableEnemies.size(); i > 1; --i) {
-            size_t j = rand() % i;
-            std::swap(availableEnemies[i - 1], availableEnemies[j]);
-        }
-
-        int playerLevel = player.getLevel();
-        int maxTotalLevel = playerLevel * 2;
-        int currentTotalLevel = 0;
+    int GameObject::BattleSegment(bool isBoss) {
+        system("cls");
         std::vector<Enemy> battleEnemies;
+        // Запоминаем выбранного босса, чтобы потом удалить из availableBosses
+        Enemy currentBoss;
+        bool bossDefeated = false;
 
-        for (auto* e : availableEnemies) {
-            if (battleEnemies.size() >= MAX_ENEMY_IN_BATTLE) break;
-            if (currentTotalLevel + e->level <= maxTotalLevel) {
-                battleEnemies.push_back(*e);
-                currentTotalLevel += e->level;
+        if (isBoss) {
+            if (availableBosses.empty()) {
+                std::cout << "Нет доступных боссов!\n";
+                return 1;
+            }
+            int idx = rand() % availableBosses.size();
+            currentBoss = availableBosses[idx];
+            battleEnemies.push_back(currentBoss);
+        }
+        else {
+            std::vector<Enemy*> availableEnemies;
+            for (auto& e : commonEnemies) availableEnemies.push_back(&e);
+            for (size_t i = availableEnemies.size(); i > 1; --i) {
+                size_t j = rand() % i;
+                std::swap(availableEnemies[i - 1], availableEnemies[j]);
+            }
+            int playerLevel = player.getLevel();
+            int maxTotalLevel = playerLevel * 2;
+            int currentTotalLevel = 0;
+            for (auto* e : availableEnemies) {
+                if (battleEnemies.size() >= MAX_ENEMY_IN_BATTLE) break;
+                if (currentTotalLevel + e->level <= maxTotalLevel) {
+                    battleEnemies.push_back(*e);
+                    currentTotalLevel += e->level;
+                }
+            }
+            if (battleEnemies.empty()) {
+                std::cout << "Нет подходящих врагов для боя!\n";
+                return 1;
             }
         }
 
-        if (battleEnemies.empty()) {
-            std::cout << "Нет подходящих врагов для боя!\n";
-            return 1;
-        }
-
-        // 2. Локальное состояние игрока
         int playerHp = player.getHp();
         int playerMaxHp = player.getMaxHp();
         std::vector<int> playerEnableCards = player.getEnableCards();
         std::vector<int> playerHand;
         int playerMovesRemaining = 0;
 
-        // 3. Лямбды
         auto getCardById = [&](int id) -> CardItem* {
             for (auto& c : cards) if (c.id == id) return &c;
             return nullptr;
             };
 
+        // Исправленная функция drawCards с восстановлением колоды
         auto drawCards = [&](std::vector<int>& hand, std::vector<int>& enableCards, int maxDraw, int maxHandSize) {
+            // Если колода пуста, восстановить её из глобального списка cards
+            if (enableCards.empty()) {
+                std::cout << COLOR_YELLOW << "Колода пуста! Восстанавливаем...\n" << COLOR_RESET;
+                for (const auto& c : cards) {
+                    enableCards.push_back(c.id);
+                }
+                // Перемешиваем колоду (необязательно, но для случайности)
+                std::random_shuffle(enableCards.begin(), enableCards.end());
+            }
             int drawn = 0;
             while (drawn < maxDraw && hand.size() < maxHandSize && !enableCards.empty()) {
                 int idx = rand() % enableCards.size();
@@ -474,6 +600,9 @@ namespace game {
                 hand.push_back(cardId);
                 enableCards.erase(enableCards.begin() + idx);
                 drawn++;
+            }
+            if (enableCards.empty() && hand.size() < maxHandSize) {
+                std::cout << COLOR_RED << "Нет карт для добора!\n" << COLOR_RESET;
             }
             };
 
@@ -484,7 +613,6 @@ namespace game {
                 enableCards.push_back(cardId);
             }
             };
-
         auto applyDamageToPlayer = [&](int damage, DamageType dtype) -> int {
             int resist = 0;
             switch (dtype) {
@@ -499,12 +627,10 @@ namespace game {
             if (playerHp < 0) playerHp = 0;
             return finalDamage;
             };
-
         auto applyHealToPlayer = [&](int amount) {
             playerHp += amount;
             if (playerHp > playerMaxHp) playerHp = playerMaxHp;
             };
-
         auto applyDamageToEnemy = [&](Enemy& enemy, int damage, DamageType dtype) -> int {
             int resist = 0;
             switch (dtype) {
@@ -519,18 +645,15 @@ namespace game {
             if (enemy.hp < 0) enemy.hp = 0;
             return finalDamage;
             };
-
         auto applyHealToEnemy = [&](Enemy& enemy, int amount) {
             enemy.hp += amount;
             if (enemy.hp > enemy.maxhp) enemy.hp = enemy.maxhp;
             };
 
-        // 4. Основной цикл боя
         bool playerAlive = true;
         bool enemiesAlive = true;
 
         while (playerAlive && enemiesAlive) {
-            // Сбор по инициативе
             struct Turn { bool isPlayer; int initiative; int enemyIndex; };
             std::vector<Turn> turns;
             turns.push_back({ true, player.getInitiative(), -1 });
@@ -555,8 +678,25 @@ namespace game {
                         printTopStats(battleEnemies, playerHp, playerMaxHp);
                         printHandAndMoves(playerHand, playerMovesRemaining, cards);
 
+                        std::string input;
                         int choice = 0;
-                        std::cin >> choice;
+                        while (true) {
+                            std::cout << "Ваш выбор: ";
+                            std::cin >> input;
+                            if (input == "i" || input == "I") {
+                                printInspectMenu(battleEnemies);
+                                continue;
+                            }
+                            try {
+                                size_t pos;
+                                choice = std::stoi(input, &pos);
+                                if (pos != input.size()) throw std::invalid_argument("");
+                                break;
+                            }
+                            catch (...) {
+                                std::cout << "Ошибка: введите число (0, 7, 8 или номер карты).\n";
+                            }
+                        }
                         if (choice == 0) {
                             endTurn = true;
                             break;
@@ -593,7 +733,6 @@ namespace game {
                             playerMovesRemaining -= card->cost;
                         }
                         else {
-                            // выбор цели
                             std::vector<int> alive;
                             for (size_t i = 0; i < battleEnemies.size(); ++i)
                                 if (battleEnemies[i].hp > 0) alive.push_back(i);
@@ -606,13 +745,20 @@ namespace game {
                                     << " (HP " << battleEnemies[idx].hp << "/" << battleEnemies[idx].maxhp << ")\n";
                             }
                             printSeparator('=', 80);
-                            std::cout << "\nВаш выбор: ";
-                            int targetChoice;
-                            std::cin >> targetChoice;
-                            if (targetChoice < 1 || targetChoice >(int)alive.size()) {
-                                std::cout << "Неверная цель.\n";
-                                waitForEnter();
-                                continue;
+                            int targetChoice = 0;
+                            while (true) {
+                                std::cout << "\nВаш выбор: ";
+                                std::cin >> input;
+                                try {
+                                    size_t pos;
+                                    targetChoice = std::stoi(input, &pos);
+                                    if (pos != input.size()) throw std::invalid_argument("");
+                                    if (targetChoice >= 1 && targetChoice <= (int)alive.size()) break;
+                                    else std::cout << "Неверный номер.\n";
+                                }
+                                catch (...) {
+                                    std::cout << "Ошибка: введите число.\n";
+                                }
                             }
                             Enemy& target = battleEnemies[alive[targetChoice - 1]];
                             int dealt = applyDamageToEnemy(target, card->damage, card->dtype);
@@ -682,7 +828,6 @@ namespace game {
             for (auto& e : battleEnemies) if (e.hp > 0) enemiesAlive = true;
         }
 
-        // 5. Завершение боя
         if (!playerAlive) {
             printSeparator('=', SEPARATOR_WIDTH);
             std::cout << "ВЫ ПОВЕРЖЕНЫ...\n";
@@ -691,20 +836,26 @@ namespace game {
             return 0;
         }
         else {
-            int totalExp = 0;
-            int totalMoney = 0;
+            int totalExp = 0, totalMoney = 0;
             for (const auto& e : battleEnemies) {
                 totalExp += e.gainexp;
                 totalMoney += e.gainmoney;
             }
-
+            if (isBoss) {
+                totalExp = (int)(totalExp * 1.5);
+                totalMoney = (int)(totalMoney * 2);
+                // Удаляем побеждённого босса из списка доступных
+                auto it = std::find_if(availableBosses.begin(), availableBosses.end(),
+                    [&currentBoss](const Enemy& e) { return e.id == currentBoss.id; });
+                if (it != availableBosses.end()) availableBosses.erase(it);
+            }
             player.addExp(totalExp);
             player.addMoney(totalMoney);
             player.setHp(playerHp);
             player.getEnableCards() = playerEnableCards;
 
             printSeparator('=', SEPARATOR_WIDTH);
-            std::cout << "ПОБЕДА!\n";
+            std::cout << (isBoss ? "БОСС ПОВЕРЖЕН! ПОБЕДА!\n" : "ПОБЕДА!\n");
             std::cout << "Получено опыта: " << totalExp << "\n";
             std::cout << "Получено денег: " << totalMoney << "\n";
             std::cout << "Текущий уровень игрока: " << player.getLevel() << "\n";
@@ -713,7 +864,9 @@ namespace game {
             return 1;
         }
     }
+
     int GameObject::SpecialSegment() {
+        system("cls");
         if (events.empty()) {
             std::cout << "Нет доступных событий.\n";
             waitForEnter();
@@ -735,7 +888,9 @@ namespace game {
         system("cls");
         return 0;
     }
+
     int GameObject::ShopSegment() {
+        system("cls");
         const int SHOP_CARDS_COUNT = 5;
         struct ShopCard {
             CardItem card;
@@ -781,9 +936,7 @@ namespace game {
             if (shopCards.empty()) {
                 std::cout << "В магазине больше нет карт.\n";
                 std::cout << "\n0 - Выйти из магазина\n";
-                std::cout << "Ваш выбор: ";
-                int choice;
-                std::cin >> choice;
+                int choice = safeGetInt("Ваш выбор: ", 0, 0);
                 if (choice == 0) exitShop = true;
                 else std::cout << "Неверный ввод.\n";
                 waitForEnter();
@@ -798,17 +951,14 @@ namespace game {
             }
             std::cout << "\n0 - Выйти из магазина\n";
             std::cout << "9 - Осмотреть карту\n";
-            std::cout << "Ваш выбор: ";
-            int choice;
-            std::cin >> choice;
+
+            int choice = safeGetInt("Ваш выбор: ", 0, 9);
             if (choice == 0) {
                 exitShop = true;
                 break;
             }
             else if (choice == 9) {
-                std::cout << "Введите номер карты для осмотра (1.." << shopCards.size() << "): ";
-                int inspectIdx;
-                std::cin >> inspectIdx;
+                int inspectIdx = safeGetInt("Введите номер карты для осмотра (1.." + std::to_string(shopCards.size()) + "): ", 1, (int)shopCards.size());
                 if (inspectIdx >= 1 && inspectIdx <= (int)shopCards.size()) {
                     const CardItem& c = shopCards[inspectIdx - 1].card;
                     system("cls");
@@ -917,6 +1067,7 @@ namespace game {
         if (from.type == SPECIAL && to.type == SPECIAL) return false;
         return true;
     }
+
     void GameObject::connectLayers(Graph& graph,
         const std::vector<int>& prevLayer,
         const std::vector<int>& nextLayer,
@@ -973,6 +1124,7 @@ namespace game {
                 graph.addEdge(from, to);
         }
     }
+
     GameObject::Graph GameObject::generateRoguelikeGraph(
         int seed,
         int NodePathLen,
@@ -983,7 +1135,6 @@ namespace game {
         int minShopVal, int maxShopVal,
         int minSpecialVal, int maxSpecialVal)
     {
-
         Graph graph;
         graph.addNode(START, 0);
         std::vector<std::vector<int>> layers;
@@ -1031,6 +1182,7 @@ namespace game {
         }
         return graph;
     }
+
     void GameObject::printGraphAscii(const Graph& graph, int startId) {
         const int NODE_WIDTH = 11;
         const int NODE_HEIGHT = 5;
@@ -1038,7 +1190,6 @@ namespace game {
         const int GAP_VERT = NODE_HEIGHT * 1.5;
         const int LEFT_MARGIN = 2;
 
-        // 1. Определяем уровни
         std::map<int, int> nodeLevel;
         std::queue<int> q;
         nodeLevel[startId] = 0;
@@ -1054,16 +1205,13 @@ namespace game {
             }
         }
 
-        // 2. Группируем узлы по уровням
         int maxLevel = 0;
         for (const auto& p : nodeLevel) maxLevel = std::max(maxLevel, p.second);
         std::vector<std::vector<int>> layers(maxLevel + 1);
         for (const auto& p : nodeLevel) layers[p.second].push_back(p.first);
         for (auto& layer : layers) std::sort(layer.begin(), layer.end());
 
-        // 3. Для каждого слоя вычисляем его ширину и смещение для центрирования
-        std::vector<int> layerWidth(layers.size());
-        std::vector<int> layerOffset(layers.size());
+        std::vector<int> layerWidth(layers.size()), layerOffset(layers.size());
         int maxWidth = 0;
         for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
             int numNodes = layers[lvl].size();
@@ -1072,29 +1220,22 @@ namespace game {
             layerWidth[lvl] = width;
             if (width > maxWidth) maxWidth = width;
         }
-        for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
+        for (size_t lvl = 0; lvl < layers.size(); ++lvl)
             layerOffset[lvl] = (maxWidth - layerWidth[lvl]) / 2;
-        }
 
-        // 4. Позиции узлов
         std::map<int, std::pair<int, int>> nodePos;
-        for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
-            for (size_t idx = 0; idx < layers[lvl].size(); ++idx) {
-                nodePos[layers[lvl][idx]] = { lvl, idx };
-            }
-        }
+        for (size_t lvl = 0; lvl < layers.size(); ++lvl)
+            for (size_t idx = 0; idx < layers[lvl].size(); ++idx)
+                nodePos[layers[lvl][idx]] = { (int)lvl, (int)idx };
 
-        // 5. Размеры полотна
         int totalWidth = LEFT_MARGIN + maxWidth;
         int totalHeight = layers.size() * NODE_HEIGHT + (layers.size() - 1) * GAP_VERT;
         std::vector<std::string> canvas(totalHeight, std::string(totalWidth, ' '));
 
-        // 6. Функция рисования узла без цвета
         auto drawNodeNoColor = [&](int level, int idx, int nodeId) {
             int y0 = level * (NODE_HEIGHT + GAP_VERT);
             int x0 = LEFT_MARGIN + layerOffset[level] + idx * (NODE_WIDTH + GAP_HORZ);
             const Node& node = graph.nodes[nodeId];
-
             for (int x = 0; x < NODE_WIDTH; ++x) {
                 canvas[y0][x0 + x] = (x == 0 || x == NODE_WIDTH - 1) ? '+' : '-';
                 canvas[y0 + NODE_HEIGHT - 1][x0 + x] = (x == 0 || x == NODE_WIDTH - 1) ? '+' : '-';
@@ -1103,7 +1244,6 @@ namespace game {
                 canvas[y0 + y][x0] = '|';
                 canvas[y0 + y][x0 + NODE_WIDTH - 1] = '|';
             }
-
             std::string idStr = std::to_string(node.id);
             int idStart = x0 + (NODE_WIDTH - (int)idStr.size()) / 2;
             for (size_t i = 0; i < idStr.size(); ++i) canvas[y0 + 1][idStart + i] = idStr[i];
@@ -1125,13 +1265,10 @@ namespace game {
             for (size_t i = 0; i < valStr.size(); ++i) canvas[y0 + 3][valStart + i] = valStr[i];
             };
 
-        for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
-            for (size_t idx = 0; idx < layers[lvl].size(); ++idx) {
+        for (size_t lvl = 0; lvl < layers.size(); ++lvl)
+            for (size_t idx = 0; idx < layers[lvl].size(); ++idx)
                 drawNodeNoColor(lvl, idx, layers[lvl][idx]);
-            }
-        }
 
-        // 7. Рисуем рёбра
         for (size_t lvl = 0; lvl < layers.size() - 1; ++lvl) {
             for (int u : layers[lvl]) {
                 int uLevel = nodePos[u].first;
@@ -1140,7 +1277,6 @@ namespace game {
                 int x0_u = LEFT_MARGIN + layerOffset[uLevel] + uIdx * (NODE_WIDTH + GAP_HORZ);
                 int x_center_u = x0_u + NODE_WIDTH / 2;
                 int y_bottom_u = y0_u + NODE_HEIGHT - 1;
-
                 for (int v : graph.nodes[u].next) {
                     if (nodePos.find(v) == nodePos.end()) continue;
                     int vLevel = nodePos[v].first;
@@ -1150,7 +1286,6 @@ namespace game {
                     int x0_v = LEFT_MARGIN + layerOffset[vLevel] + vIdx * (NODE_WIDTH + GAP_HORZ);
                     int x_center_v = x0_v + NODE_WIDTH / 2;
                     int y_top_v = y0_v;
-
                     int x1 = x_center_u, y1 = y_bottom_u + 1;
                     int x2 = x_center_v, y2 = y_top_v - 1;
                     if (y1 > y2) continue;
@@ -1180,7 +1315,6 @@ namespace game {
             }
         }
 
-        // 8. Вывод с цветами
         struct Rect { int x0, y0, x1, y1; int nodeId; };
         std::vector<Rect> rects;
         for (size_t lvl = 0; lvl < layers.size(); ++lvl) {
@@ -1225,11 +1359,11 @@ namespace game {
             printLineWithColors(y, canvas[y]);
         }
     }
+
     void GameObject::generateNshowdefaultgraph() {
         double battleWeight = 1.7;
         double shopWeight = 1.0;
         double specialWeight = 1.0;
-
         Graph g = generateRoguelikeGraph(-1, 5, 2, 4, battleWeight, shopWeight, specialWeight, 3, 2);
         g.print();
     }

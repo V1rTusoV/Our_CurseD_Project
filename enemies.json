@@ -76,7 +76,7 @@
         "splashresist": 1
     },
     {
-        "codifier": "ENM",
+        "codifier": "BOS",
         "description": "Хозяин улиц, сильный лидер.",
         "enableCards": [5, 6, 9, 15, 18, 18],
         "gainemoney": 50,
@@ -152,7 +152,7 @@
         "splashresist": 5
     },
     {
-        "codifier": "ENM",
+        "codifier": "BOS",
         "description": "Правая рука дона.",
         "enableCards": [5, 6, 7, 8, 9, 12, 14, 15, 18],
         "gainemoney": 70,
@@ -171,7 +171,7 @@
         "splashresist": 3
     },
     {
-        "codifier": "ENM",
+        "codifier": "BOS",
         "description": "Глава семьи, финальный босс.",
         "enableCards": [5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 19, 20, 21],
         "gainemoney": 150,
@@ -247,7 +247,7 @@
         "splashresist": 9999
     },
     {
-        "codifier": "ENM",
+        "codifier": "BOS",
         "description": "Генерал, призывает подкрепления.",
         "enableCards": [1, 2, 5, 6, 17],
         "gainemoney": 60,

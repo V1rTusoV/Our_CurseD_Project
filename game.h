@@ -17,6 +17,8 @@
 #include <iomanip>
 #include <queue>
 #include <cstdlib>
+#include <cctype>
+#include <limits>
 
 //STATIC GAME DEFINE BLOCK
 #define MAX_FLOOR 2
@@ -204,7 +206,7 @@ namespace game {
     public:
         Player() : level(1), initiative(5), hp(15), maxHp(15), maxmoves(3), money(0),
             mechresist(2), physresist(1), splashresist(2) {
-            enableCards = { 1,2,3,4,8,1,2,3,4,17 };
+            enableCards = { 0,0,1,2,3,4,8,1,2,3,4,17 };
             hand = {};
         }
 
@@ -372,7 +374,7 @@ namespace game {
         void applyEvent(const Event& e);
         void play();
         int MapSegment();
-        int BattleSegment();
+        int BattleSegment(bool isBoss = false);
         int ShopSegment();
         int SpecialSegment();
 
@@ -393,6 +395,9 @@ namespace game {
         std::vector <Enemy> enemys;
         std::vector <CardItem> cards;
         std::vector<Event> events;
+        std::vector<Enemy> commonEnemies;
+        std::vector<Enemy> bossEnemies;
+        std::vector<Enemy> availableBosses;
 
     };
 
