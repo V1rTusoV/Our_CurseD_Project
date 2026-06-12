@@ -74,6 +74,7 @@ namespace game {
         }
         cards = fm.readCardsFromFile("cards.json");
         events = fm.readEventsFromFile("events.json");
+
     }
 
     //main functions
@@ -81,6 +82,8 @@ namespace game {
         initgame();
         bool flag = true;
         int gcode = 0;
+
+
 
         while (flag) {
             gcode = MapSegment();
@@ -519,7 +522,6 @@ namespace game {
         }
 
         currentNodeId = nextNode;
-
         switch (map.nodes[currentNodeId].type) {
         case BATTLE:  return 1;
         case SHOP:    return 2;

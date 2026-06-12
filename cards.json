@@ -6,6 +6,7 @@
         "description": "Грязный шпельбрехер... все мы знаем каким образом ты собрал эту комбинацию...",
         "dtype": "unreal",
         "id": 0,
+        "img": "temp",
         "level": 1,
         "moneycost": 5,
         "name": "Флеш-Рояль (Debug)"
@@ -17,6 +18,7 @@
         "description": "мгъя!",
         "dtype": "physycs",
         "id": 1,
+        "img": "temp",
         "level": 1,
         "moneycost": 5,
         "name": "Плевок шерстью"
@@ -28,6 +30,7 @@
         "description": "Пушистое наслаждение. Вас погладили по-кошачьи.",
         "dtype": "physycs",
         "id": 2,
+        "img": "temp",
         "level": 1,
         "moneycost": 5,
         "name": "удар лапкой"
@@ -39,6 +42,7 @@
         "description": "Цап-царапка!",
         "dtype": "physycs",
         "id": 3,
+        "img": "temp",
         "level": 2,
         "moneycost": 15,
         "name": "удар когтями"
@@ -50,6 +54,7 @@
         "description": "Блоунти - райское наслаждение.",
         "dtype": "heal",
         "id": 4,
+        "img": "temp",
         "level": 1,
         "moneycost": 10,
         "name": "Вкусный обед"
@@ -61,6 +66,7 @@
         "description": "Что может быть лучше нестареющей классики?",
         "dtype": "mechanics",
         "id": 5,
+        "img": "temp",
         "level": 2,
         "moneycost": 30,
         "name": "Кольт"
@@ -72,6 +78,7 @@
         "description": "Как там говорилось? Или вилкой в глаз, или...Не важно, запомни одно. Никогда не выбриай стилет!",
         "dtype": "physycs",
         "id": 6,
+        "img": "temp",
         "level": 3,
         "moneycost": 25,
         "name": "Стилеты"
@@ -83,6 +90,7 @@
         "description": "Да, Вы все верно прочитали.",
         "dtype": "physycs_splash",
         "id": 7,
+        "img": "temp",
         "level": 4,
         "moneycost": 50,
         "name": "Мышеловка с динамитной шашкой"
@@ -94,6 +102,7 @@
         "description": "Целебное средство, о котором знает всякий зверь города К.",
         "dtype": "heal",
         "id": 8,
+        "img": "temp",
         "level": 1,
         "moneycost": 20,
         "name": "Пакет кошачьей мяты"
@@ -105,6 +114,7 @@
         "description": "Товар, благодаря которому известный Котальпоне обрел свою известность.",
         "dtype": "heal",
         "id": 9,
+        "img": "temp",
         "level": 3,
         "moneycost": 40,
         "name": "Мешок кошачьей мяты"
@@ -116,6 +126,7 @@
         "description": "Лишь два кота в городе К. владеют знаниями, записанные в этом гримуаре.",
         "dtype": "unreal",
         "id": 10,
+        "img": "temp",
         "level": 9999,
         "moneycost": 9999,
         "name": "Гримуар по Це Пе Пе"
@@ -127,6 +138,7 @@
         "description": "Старый добрый Томм",
         "dtype": "mechanics",
         "id": 11,
+        "img": "temp",
         "level": 5,
         "moneycost": 80,
         "name": "Томми-ган"
@@ -138,6 +150,7 @@
         "description": "В нашем деле скорость решающий фактор.",
         "dtype": "mechanics",
         "id": 12,
+        "img": "temp",
         "level": 4,
         "moneycost": 60,
         "name": "Лупара"
@@ -149,6 +162,7 @@
         "description": "Хм? Так сказки о девяти кошачьих жизнях - не ложь?",
         "dtype": "heal",
         "id": 13,
+        "img": "temp",
         "level": 5,
         "moneycost": 100,
         "name": "Девять жизней"
@@ -160,6 +174,7 @@
         "description": "Надежнее оружия вам не найти.",
         "dtype": "mechanics",
         "id": 14,
+        "img": "temp",
         "level": 4,
         "moneycost": 45,
         "name": "Винчестер"
@@ -171,6 +186,7 @@
         "description": "Он из Германия прибыть. Целебных пулей привозить.",
         "dtype": "mechanics",
         "id": 15,
+        "img": "temp",
         "level": 3,
         "moneycost": 35,
         "name": "Маузер"
@@ -182,6 +198,7 @@
         "description": "Хм, кажется там остался всего один патрон.",
         "dtype": "mechanics",
         "id": 16,
+        "img": "temp",
         "level": 5,
         "moneycost": 50,
         "name": "Наган 1895"
@@ -193,6 +210,7 @@
         "description": "За неимением лучшего.",
         "dtype": "physycs",
         "id": 17,
+        "img": "temp",
         "level": 2,
         "moneycost": 15,
         "name": "Деревянная дубинка"
@@ -204,6 +222,7 @@
         "description": "За неимением наилучшего.",
         "dtype": "physycs",
         "id": 18,
+        "img": "temp",
         "level": 3,
         "moneycost": 25,
         "name": "Стальная дубинка"
@@ -215,6 +234,7 @@
         "description": "Это миниган?",
         "dtype": "mechanics",
         "id": 19,
+        "img": "temp",
         "level": 5,
         "moneycost": 100,
         "name": "Привет из будущего"
@@ -226,6 +246,7 @@
         "description": "SDL_Texture*...Так, что там дальше...",
         "dtype": "summon",
         "id": 20,
+        "img": "temp",
         "level": 5,
         "moneycost": 60,
         "name": "Накодил"
@@ -237,6 +258,7 @@
         "description": "-то здесь не Хмм, что так, определенно не вот что",
         "dtype": "specific",
         "id": 21,
+        "img": "temp",
         "level": 5,
         "moneycost": 70,
         "name": "Кавардак"

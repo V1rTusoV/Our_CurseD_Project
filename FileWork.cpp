@@ -3,7 +3,30 @@
 #include <fstream>
 #include <stdexcept>
 
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <vector>
+#include <windows.h> // Для MultiByteToWideChar и WideCharToMultiByte
+#include <nlohmann/json.hpp>
+
 namespace file {
+
+    std::string utf8_to_cp1251(const std::string& utf8_str) {
+        if (utf8_str.empty()) return {};
+
+        // 1. Конвертируем UTF-8 в UTF-16
+        int wch_len = MultiByteToWideChar(CP_UTF8, 0, utf8_str.data(), -1, nullptr, 0);
+        std::vector<wchar_t> wide_str(wch_len);
+        MultiByteToWideChar(CP_UTF8, 0, utf8_str.data(), -1, wide_str.data(), wch_len);
+
+        // 2. Конвертируем UTF-16 в CP1251
+        int cp_len = WideCharToMultiByte(1251, 0, wide_str.data(), -1, nullptr, 0, nullptr, nullptr);
+        std::vector<char> cp1251_str(cp_len);
+        WideCharToMultiByte(1251, 0, wide_str.data(), -1, cp1251_str.data(), cp_len, nullptr, nullptr);
+
+        return cp1251_str.data();
+    }
 
     //serialiaze block
     void FileManager::to_json(json& j, const game::Enemy& e) {
@@ -24,7 +47,8 @@ namespace file {
             {"hand", e.hand},
             {"mechresist", e.mechresist},
             {"physresist", e.physresist},
-            {"splashresist", e.splashresist}
+            {"splashresist", e.splashresist},
+            {"img", e.img}
         };
     }
     void FileManager::to_json(json& j, const std::vector<game::Enemy>& vec) {
@@ -45,7 +69,8 @@ namespace file {
             {"cost", c.cost},
             {"dtype", damageTypeToString(c.dtype)},
             {"damage", c.damage},
-            {"moneycost", c.moneycost}
+            {"moneycost", c.moneycost},
+            {"img", c.img}
         };
     }
     void FileManager::to_json(json& j, const std::vector<game::CardItem>& vec) {
@@ -96,6 +121,10 @@ namespace file {
         e.mechresist = j.value("mechresist", 0);
         e.physresist = j.value("physresist", 0);
         e.splashresist = j.value("splashresist", 0);
+        e.img = j.value("img", "temp");
+
+        e.name = utf8_to_cp1251(e.name);
+        e.description = utf8_to_cp1251(e.description);
     }
     void FileManager::from_json(const json& j, std::vector<game::Enemy>& vec) {
         if (!j.is_array()) {
@@ -122,6 +151,10 @@ namespace file {
         std::string dtypeStr;
         j.at("dtype").get_to(dtypeStr);
         c.dtype = stringToDamageType(dtypeStr);
+        c.img = j.value("img", "temp");
+
+        c.name = utf8_to_cp1251(c.name);
+        c.description = utf8_to_cp1251(c.description);
     }
     void FileManager::from_json(const json& j, std::vector<game::CardItem>& vec) {
         if (!j.is_array()) {
@@ -145,6 +178,8 @@ namespace file {
         std::string typeStr;
         j.at("type").get_to(typeStr);
         e.type = stringToEventType(typeStr);
+
+        e.description = utf8_to_cp1251(e.description);
     }
     void FileManager::from_json(const json& j, std::vector<game::Event>& vec) {
         if (!j.is_array()) {

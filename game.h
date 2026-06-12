@@ -128,6 +128,7 @@ namespace game {
     };
     class CardItem : public Base {
     public:
+        std::string img;
         std::string name;
         std::string description;
         int level;
@@ -137,7 +138,7 @@ namespace game {
         int moneycost;
 
         CardItem(int Id = 0, std::string Codifier = " ", std::string Name = " ", std::string Description = " ", int Level = 0,
-            int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0, int Moneycost = 10)
+            int Cost = 0, DamageType Dtype = DamageType::specific, int Damage = 0, int Moneycost = 10, std::string Img = "Temp")
         {
             id = Id;
             codifier = Codifier;
@@ -148,10 +149,12 @@ namespace game {
             dtype = Dtype;
             damage = Damage;
             moneycost = Moneycost;
+            img = Img;
         }
     };
     class Enemy : public Base {
     public:
+        std::string img;
         std::string name;
         std::string description;
         int level;
@@ -171,7 +174,7 @@ namespace game {
     public:
         Enemy(int Id = 0, std::string Codifietr = "", std::string Name = "",
             std::string Description = "", int Level = 1, int Initiative = 10, int Hp = 100, int Moves = 2, int Mechresist = 0, int Physresist = 0, int Splashresist = 0,
-            int Maxhp = 10, int Maxmoves = 4, int Gainexp = 10, int Gainmoney = 10) {
+            int Maxhp = 10, int Maxmoves = 4, int Gainexp = 10, int Gainmoney = 10, std::string Img = "temp") {
             id = Id;
             codifier = Codifietr;
             name = Name;
@@ -187,6 +190,7 @@ namespace game {
             maxmoves = Maxmoves;
             gainexp = Gainexp;
             gainmoney = Gainmoney;
+            img = Img;
         }
     };
     class Player {
